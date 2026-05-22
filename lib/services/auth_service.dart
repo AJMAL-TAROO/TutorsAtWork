@@ -31,8 +31,7 @@ class RealtimeDatabaseAuthService implements AuthService {
     final usersRef = role == UserRole.student
         ? _databaseService.students
         : _databaseService.admins;
-    final snapshot = await usersRef.get();
-    final users = snapshot.value;
+    final users = await _databaseService.get(usersRef);
 
     if (users is! Map) {
       return null;

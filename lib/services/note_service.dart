@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:firebase_storage/firebase_storage.dart';
-
 import '../models/app_user.dart';
 import '../models/note_file.dart';
 import '../utils/note_file_picker.dart';
@@ -44,14 +42,16 @@ class FirebaseNoteService implements NoteService {
 
   @override
   Future<List<NoteFile>> notesForFolder(String storageFolder) async {
-    final snapshot = await _databaseService.notesFolder(storageFolder).get();
-    return _notesFromSnapshotValue(snapshot.value);
+    final value = await _databaseService.get(
+      _databaseService.notesFolder(storageFolder),
+    );
+    return _notesFromSnapshotValue(value);
   }
 
   @override
   Stream<List<NoteFile>> watchNotesForFolder(String storageFolder) {
-    return _databaseService.notesFolder(storageFolder).onValue.map((event) {
-      return _notesFromSnapshotValue(event.snapshot.value);
+    return _databaseService.watch(storageFolder).map((value) {
+      return _notesFromSnapshotValue(value);
     });
   }
 
@@ -71,14 +71,13 @@ class FirebaseNoteService implements NoteService {
       classroomId: classroomId,
       storageFolder: storageFolder,
     );
-    final storageRef = _storageService.noteFile(storageFolder, noteId);
-    final metadata = SettableMetadata(
-      contentDisposition: 'inline; filename="${file.name}"',
+    final downloadUrl = await _storageService.uploadNoteFile(
+      storageFolder: storageFolder,
+      noteId: noteId,
+      bytes: Uint8List.fromList(bytes),
+      fileName: file.name,
       contentType: _contentTypeForFileName(file.name),
     );
-
-    await storageRef.putData(Uint8List.fromList(bytes), metadata);
-    final downloadUrl = await storageRef.getDownloadURL();
     final note = NoteFile(
       id: noteId,
       name: file.name,
@@ -86,24 +85,26 @@ class FirebaseNoteService implements NoteService {
       createdAt: DateTime.now(),
     );
 
-    await _databaseService.notesFolder(storageFolder).child('$noteId').set({
+    await _databaseService.set('$storageFolder/$noteId', {
       'Name': note.name,
       'ID': note.id,
       'Link': note.link,
       'Time': note.createdAt.millisecondsSinceEpoch,
     });
-    await _databaseService.noteCounter(classroomId).set(noteId);
+    await _databaseService.set(
+      _databaseService.noteCounter(classroomId),
+      noteId,
+    );
 
     if (uploadedBy.role == UserRole.admin) {
-      await _databaseService.admins
-          .child(uploadedBy.key)
-          .child('LOGS')
-          .child('LAST_UPLOAD_NOTES')
-          .set({
-            'CLASSROOM_ID': classroomId.toString(),
-            'TIMESTAMP': DateTime.now().millisecondsSinceEpoch,
-            'DATE': DateTime.now().toIso8601String(),
-          });
+      await _databaseService.set(
+        '${_databaseService.admins}/${uploadedBy.key}/LOGS/LAST_UPLOAD_NOTES',
+        {
+          'CLASSROOM_ID': classroomId.toString(),
+          'TIMESTAMP': DateTime.now().millisecondsSinceEpoch,
+          'DATE': DateTime.now().toIso8601String(),
+        },
+      );
     }
 
     return note;
@@ -120,10 +121,9 @@ class FirebaseNoteService implements NoteService {
       throw StateError('File name cannot be empty.');
     }
 
-    await _databaseService
-        .notesFolder(storageFolder)
-        .child('${note.id}')
-        .update({'Name': trimmedName});
+    await _databaseService.update('$storageFolder/${note.id}', {
+      'Name': trimmedName,
+    });
   }
 
   @override
@@ -131,28 +131,17 @@ class FirebaseNoteService implements NoteService {
     required String storageFolder,
     required NoteFile note,
   }) async {
-    try {
-      await _storageService.noteFile(storageFolder, note.id).delete();
-    } on FirebaseException catch (error) {
-      if (error.code != 'object-not-found') {
-        rethrow;
-      }
-    }
-
-    await _databaseService
-        .notesFolder(storageFolder)
-        .child('${note.id}')
-        .remove();
+    await _storageService.deleteNoteFile(storageFolder, note.id);
+    await _databaseService.remove('$storageFolder/${note.id}');
   }
 
   Future<int> _nextNoteId({
     required int classroomId,
     required String storageFolder,
   }) async {
-    final counterSnapshot = await _databaseService
-        .noteCounter(classroomId)
-        .get();
-    final counterValue = counterSnapshot.value;
+    final counterValue = await _databaseService.get(
+      _databaseService.noteCounter(classroomId),
+    );
 
     if (counterValue is int) {
       return counterValue + 1;

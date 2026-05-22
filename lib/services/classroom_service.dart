@@ -17,8 +17,7 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
       return const [];
     }
 
-    final snapshot = await _databaseService.classrooms.get();
-    final classrooms = snapshot.value;
+    final classrooms = await _databaseService.get(_databaseService.classrooms);
 
     if (classrooms is! Map) {
       return const [];
