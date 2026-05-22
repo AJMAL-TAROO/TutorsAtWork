@@ -58,9 +58,7 @@ class ClassroomsScreen extends ConsumerWidget {
                 onViewNotes: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                        'Notes folder: ${classroom.storageFolder}',
-                      ),
+                      content: Text('Notes folder: ${classroom.storageFolder}'),
                     ),
                   );
                 },

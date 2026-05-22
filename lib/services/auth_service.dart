@@ -1,3 +1,4 @@
+import 'firebase_database_service.dart';
 import '../models/app_user.dart';
 
 abstract class AuthService {
@@ -8,8 +9,11 @@ abstract class AuthService {
   });
 }
 
-class PlaceholderAuthService implements AuthService {
-  const PlaceholderAuthService();
+class RealtimeDatabaseAuthService implements AuthService {
+  RealtimeDatabaseAuthService({FirebaseDatabaseService? databaseService})
+    : _databaseService = databaseService ?? FirebaseDatabaseService();
+
+  final FirebaseDatabaseService _databaseService;
 
   @override
   Future<AppUser?> signIn({
@@ -17,16 +21,42 @@ class PlaceholderAuthService implements AuthService {
     required String password,
     required UserRole role,
   }) async {
-    if (email.trim().isEmpty || password.trim().isEmpty) {
+    final normalizedEmail = email.trim();
+    final normalizedPassword = password.trim();
+
+    if (normalizedEmail.isEmpty || normalizedPassword.isEmpty) {
       return null;
     }
 
-    return AppUser(
-      key: 'local-preview-user',
-      email: email.trim(),
-      fullName: role == UserRole.student ? 'Student Preview' : 'Admin Preview',
-      role: role,
-      virtualRoomIds: const [1001, 1002, 1003],
-    );
+    final usersRef = role == UserRole.student
+        ? _databaseService.students
+        : _databaseService.admins;
+    final snapshot = await usersRef.get();
+    final users = snapshot.value;
+
+    if (users is! Map) {
+      return null;
+    }
+
+    for (final entry in users.entries) {
+      final data = entry.value;
+      if (data is! Map) {
+        continue;
+      }
+
+      final storedEmail = data['EMAIL']?.toString().trim();
+      final storedPassword = data['PASSWORD']?.toString().trim();
+
+      if (storedEmail == normalizedEmail &&
+          storedPassword == normalizedPassword) {
+        return AppUser.fromRealtimeDatabase(
+          key: entry.key.toString(),
+          role: role,
+          data: data,
+        );
+      }
+    }
+
+    return null;
   }
 }

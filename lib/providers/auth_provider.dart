@@ -4,7 +4,22 @@ import '../models/app_user.dart';
 import '../services/auth_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return const PlaceholderAuthService();
+  return RealtimeDatabaseAuthService();
 });
 
-final currentUserProvider = StateProvider<AppUser?>((ref) => null);
+final currentUserProvider = NotifierProvider<CurrentUserNotifier, AppUser?>(
+  CurrentUserNotifier.new,
+);
+
+class CurrentUserNotifier extends Notifier<AppUser?> {
+  @override
+  AppUser? build() => null;
+
+  void setUser(AppUser user) {
+    state = user;
+  }
+
+  void clear() {
+    state = null;
+  }
+}

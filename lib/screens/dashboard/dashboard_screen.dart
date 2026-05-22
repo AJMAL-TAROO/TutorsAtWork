@@ -21,7 +21,7 @@ class DashboardScreen extends ConsumerWidget {
         IconButton(
           tooltip: 'Sign out',
           onPressed: () {
-            ref.read(currentUserProvider.notifier).state = null;
+            ref.read(currentUserProvider.notifier).clear();
             context.go(AppRoutes.login);
           },
           icon: const Icon(Icons.logout),

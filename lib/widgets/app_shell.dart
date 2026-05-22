@@ -18,13 +18,18 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: actions,
-      ),
+      appBar: AppBar(title: Text(title), actions: actions),
       drawer: NavigationDrawer(
-        children: [
-          const DrawerHeader(
+        selectedIndex: switch (GoRouterState.of(context).uri.path) {
+          AppRoutes.classrooms => 1,
+          _ => 0,
+        },
+        onDestinationSelected: (index) {
+          Navigator.of(context).pop();
+          context.go(index == 0 ? AppRoutes.dashboard : AppRoutes.classrooms);
+        },
+        children: const [
+          DrawerHeader(
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
@@ -34,24 +39,16 @@ class AppShell extends StatelessWidget {
             ),
           ),
           NavigationDrawerDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard),
-            label: const Text('Dashboard'),
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: Text('Dashboard'),
           ),
           NavigationDrawerDestination(
-            icon: const Icon(Icons.school_outlined),
-            selectedIcon: const Icon(Icons.school),
-            label: const Text('Classrooms'),
+            icon: Icon(Icons.school_outlined),
+            selectedIcon: Icon(Icons.school),
+            label: Text('Classrooms'),
           ),
         ],
-        selectedIndex: switch (GoRouterState.of(context).uri.path) {
-          AppRoutes.classrooms => 1,
-          _ => 0,
-        },
-        onDestinationSelected: (index) {
-          Navigator.of(context).pop();
-          context.go(index == 0 ? AppRoutes.dashboard : AppRoutes.classrooms);
-        },
       ),
       body: SafeArea(child: child),
     );

@@ -30,9 +30,7 @@ class AppTheme {
 
   static InputDecorationTheme get _inputDecorationTheme {
     return InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       filled: true,
     );
   }

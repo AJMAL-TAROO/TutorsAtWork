@@ -1,43 +1,44 @@
+import 'firebase_database_service.dart';
 import '../models/classroom.dart';
 
 abstract class ClassroomService {
   Future<List<Classroom>> classroomsForRoomIds(List<int> roomIds);
 }
 
-class PlaceholderClassroomService implements ClassroomService {
-  const PlaceholderClassroomService();
+class RealtimeDatabaseClassroomService implements ClassroomService {
+  RealtimeDatabaseClassroomService({FirebaseDatabaseService? databaseService})
+    : _databaseService = databaseService ?? FirebaseDatabaseService();
+
+  final FirebaseDatabaseService _databaseService;
 
   @override
   Future<List<Classroom>> classroomsForRoomIds(List<int> roomIds) async {
-    final classrooms = _previewClassrooms
-        .where((classroom) => roomIds.contains(classroom.id))
-        .toList();
+    if (roomIds.isEmpty) {
+      return const [];
+    }
 
-    return classrooms.isEmpty ? _previewClassrooms : classrooms;
+    final snapshot = await _databaseService.classrooms.get();
+    final classrooms = snapshot.value;
+
+    if (classrooms is! Map) {
+      return const [];
+    }
+
+    final allowedRoomIds = roomIds.toSet();
+    final results = <Classroom>[];
+
+    for (final value in classrooms.values) {
+      if (value is! Map) {
+        continue;
+      }
+
+      final classroom = Classroom.fromRealtimeDatabase(value);
+      if (allowedRoomIds.contains(classroom.id)) {
+        results.add(classroom);
+      }
+    }
+
+    results.sort((left, right) => left.id.compareTo(right.id));
+    return results;
   }
 }
-
-const _previewClassrooms = [
-  Classroom(
-    id: 1001,
-    title: 'English',
-    storageFolder: '1001_NOTES',
-    teacherName: 'Mohamade Ajmal Taroo',
-    teacherPhone: '59185657',
-    virtualRoomLink: 'https://mindtech.daily.co/ENGLISH_VR_LINK',
-  ),
-  Classroom(
-    id: 1002,
-    title: 'Mathematics',
-    storageFolder: '1002_NOTES',
-    teacherName: 'Ajmal Taroo',
-    teacherPhone: '58505488',
-  ),
-  Classroom(
-    id: 1003,
-    title: 'Computer Science',
-    storageFolder: '1003_NOTES',
-    teacherName: 'Mohamade Ajmal Taroo',
-    teacherPhone: '58505488',
-  ),
-];

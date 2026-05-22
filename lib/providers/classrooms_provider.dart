@@ -5,7 +5,7 @@ import '../services/classroom_service.dart';
 import 'auth_provider.dart';
 
 final classroomServiceProvider = Provider<ClassroomService>((ref) {
-  return const PlaceholderClassroomService();
+  return RealtimeDatabaseClassroomService();
 });
 
 final classroomsProvider = FutureProvider<List<Classroom>>((ref) async {

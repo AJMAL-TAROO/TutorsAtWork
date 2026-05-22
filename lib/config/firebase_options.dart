@@ -5,6 +5,10 @@ class DefaultFirebaseOptions {
   const DefaultFirebaseOptions._();
 
   static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
@@ -19,31 +23,42 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const web = FirebaseOptions(
+    apiKey: 'AIzaSyCwol-nlbl1YbdAiU88nYFv67pJg2XOo9U',
+    authDomain: 'houseoftutors-f398e.firebaseapp.com',
+    databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
+    projectId: 'houseoftutors-f398e',
+    storageBucket: 'houseoftutors-f398e.appspot.com',
+    messagingSenderId: '1006665226128',
+    appId: '1:1006665226128:web:bcf481758d361da3ef8515',
+    measurementId: 'G-PEM636J9ZD',
+  );
+
   static const android = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_ANDROID_API_KEY',
-    appId: 'REPLACE_WITH_ANDROID_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_SENDER_ID',
-    projectId: 'REPLACE_WITH_PROJECT_ID',
-    databaseURL: 'REPLACE_WITH_DATABASE_URL',
-    storageBucket: 'REPLACE_WITH_STORAGE_BUCKET',
+    apiKey: 'AIzaSyCwol-nlbl1YbdAiU88nYFv67pJg2XOo9U',
+    appId: '1:1006665226128:web:bcf481758d361da3ef8515',
+    messagingSenderId: '1006665226128',
+    projectId: 'houseoftutors-f398e',
+    databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
+    storageBucket: 'houseoftutors-f398e.appspot.com',
   );
 
   static const ios = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_IOS_API_KEY',
-    appId: 'REPLACE_WITH_IOS_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_SENDER_ID',
-    projectId: 'REPLACE_WITH_PROJECT_ID',
-    databaseURL: 'REPLACE_WITH_DATABASE_URL',
-    storageBucket: 'REPLACE_WITH_STORAGE_BUCKET',
-    iosBundleId: 'REPLACE_WITH_IOS_BUNDLE_ID',
+    apiKey: 'AIzaSyCwol-nlbl1YbdAiU88nYFv67pJg2XOo9U',
+    appId: '1:1006665226128:web:bcf481758d361da3ef8515',
+    messagingSenderId: '1006665226128',
+    projectId: 'houseoftutors-f398e',
+    databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
+    storageBucket: 'houseoftutors-f398e.appspot.com',
+    iosBundleId: 'com.houseoftutors.taw',
   );
 
   static const windows = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_WINDOWS_API_KEY',
-    appId: 'REPLACE_WITH_WINDOWS_APP_ID',
-    messagingSenderId: 'REPLACE_WITH_SENDER_ID',
-    projectId: 'REPLACE_WITH_PROJECT_ID',
-    databaseURL: 'REPLACE_WITH_DATABASE_URL',
-    storageBucket: 'REPLACE_WITH_STORAGE_BUCKET',
+    apiKey: 'AIzaSyCwol-nlbl1YbdAiU88nYFv67pJg2XOo9U',
+    appId: '1:1006665226128:web:bcf481758d361da3ef8515',
+    messagingSenderId: '1006665226128',
+    projectId: 'houseoftutors-f398e',
+    databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
+    storageBucket: 'houseoftutors-f398e.appspot.com',
   );
 }

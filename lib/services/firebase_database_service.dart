@@ -2,7 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 class FirebaseDatabaseService {
   FirebaseDatabaseService({FirebaseDatabase? database})
-      : _database = database ?? FirebaseDatabase.instance;
+    : _database = database ?? FirebaseDatabase.instance;
 
   final FirebaseDatabase _database;
 
