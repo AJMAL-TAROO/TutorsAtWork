@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../navigation/app_routes.dart';
 import '../../providers/classrooms_provider.dart';
 import '../../widgets/app_shell.dart';
 import '../../widgets/classroom_card.dart';
@@ -56,10 +58,9 @@ class ClassroomsScreen extends ConsumerWidget {
                   );
                 },
                 onViewNotes: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Notes folder: ${classroom.storageFolder}'),
-                    ),
+                  context.go(
+                    AppRoutes.notesForClassroom(classroom.id),
+                    extra: classroom,
                   );
                 },
               );

@@ -9,4 +9,8 @@ class StorageService {
   Reference classroomNotesFolder(String classroomId) {
     return _storage.ref('${classroomId}_NOTES');
   }
+
+  Reference noteFile(String storageFolder, int noteId) {
+    return _storage.ref('$storageFolder/$noteId');
+  }
 }

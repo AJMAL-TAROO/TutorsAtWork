@@ -10,6 +10,10 @@ class FirebaseDatabaseService {
   DatabaseReference get admins => _database.ref('ADMIN');
   DatabaseReference get classrooms => _database.ref('CLASSROOMS');
 
+  DatabaseReference noteCounter(int classroomId) {
+    return _database.ref('NUMBERS/ID_CLASSROOM_${classroomId}_NOTES/NUMBER');
+  }
+
   DatabaseReference notesFolder(String storageFolder) {
     return _database.ref(storageFolder);
   }

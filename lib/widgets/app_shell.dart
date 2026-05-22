@@ -8,17 +8,21 @@ class AppShell extends StatelessWidget {
     required this.title,
     required this.child,
     this.actions,
+    this.leading,
+    this.floatingActionButton,
     super.key,
   });
 
   final String title;
   final Widget child;
   final List<Widget>? actions;
+  final Widget? leading;
+  final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
+      appBar: AppBar(title: Text(title), leading: leading, actions: actions),
       drawer: NavigationDrawer(
         selectedIndex: switch (GoRouterState.of(context).uri.path) {
           AppRoutes.classrooms => 1,
@@ -51,6 +55,7 @@ class AppShell extends StatelessWidget {
         ],
       ),
       body: SafeArea(child: child),
+      floatingActionButton: floatingActionButton,
     );
   }
 }

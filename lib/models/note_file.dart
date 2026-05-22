@@ -19,4 +19,21 @@ class NoteFile {
   final String name;
   final String link;
   final DateTime createdAt;
+
+  String get extension {
+    final parts = name.split('.');
+    return parts.length > 1 ? parts.last.toLowerCase() : '';
+  }
+
+  bool get isImage {
+    return const {'jpg', 'jpeg', 'png', 'gif'}.contains(extension);
+  }
+
+  bool get isPdf {
+    return extension == 'pdf';
+  }
+
+  bool get isOfficeDocument {
+    return const {'doc', 'docx', 'ppt', 'pptx'}.contains(extension);
+  }
 }

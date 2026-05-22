@@ -28,7 +28,7 @@ class DefaultFirebaseOptions {
     authDomain: 'houseoftutors-f398e.firebaseapp.com',
     databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
     projectId: 'houseoftutors-f398e',
-    storageBucket: 'houseoftutors-f398e.appspot.com',
+    storageBucket: 'houseoftutors-f398e.firebasestorage.app',
     messagingSenderId: '1006665226128',
     appId: '1:1006665226128:web:bcf481758d361da3ef8515',
     measurementId: 'G-PEM636J9ZD',
@@ -40,7 +40,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1006665226128',
     projectId: 'houseoftutors-f398e',
     databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
-    storageBucket: 'houseoftutors-f398e.appspot.com',
+    storageBucket: 'houseoftutors-f398e.firebasestorage.app',
   );
 
   static const ios = FirebaseOptions(
@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1006665226128',
     projectId: 'houseoftutors-f398e',
     databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
-    storageBucket: 'houseoftutors-f398e.appspot.com',
+    storageBucket: 'houseoftutors-f398e.firebasestorage.app',
     iosBundleId: 'com.houseoftutors.taw',
   );
 
@@ -59,6 +59,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1006665226128',
     projectId: 'houseoftutors-f398e',
     databaseURL: 'https://houseoftutors-f398e-default-rtdb.firebaseio.com/',
-    storageBucket: 'houseoftutors-f398e.appspot.com',
+    storageBucket: 'houseoftutors-f398e.firebasestorage.app',
   );
 }

@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/classroom.dart';
 import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/login/login_screen.dart';
+import '../screens/notes/notes_screen.dart';
 import 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -24,6 +26,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.classrooms,
         name: 'classrooms',
         builder: (context, state) => const ClassroomsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.classroomNotes,
+        name: 'classroom-notes',
+        builder: (context, state) {
+          final classroomId =
+              int.tryParse(state.pathParameters['classroomId'] ?? '') ?? 0;
+          final classroom = state.extra is Classroom
+              ? state.extra as Classroom
+              : null;
+
+          return NotesScreen(
+            classroomId: classroomId,
+            classroomTitle: classroom?.title ?? 'Classroom $classroomId',
+            storageFolder: classroom?.storageFolder ?? '${classroomId}_NOTES',
+          );
+        },
       ),
     ],
   );
