@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "taw_app" "\0"
+            VALUE "CompanyName", "TutorsAtWork" "\0"
+            VALUE "FileDescription", "TutorsAtWork" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "taw_app" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "taw_app.exe" "\0"
-            VALUE "ProductName", "taw_app" "\0"
+            VALUE "InternalName", "TutorsAtWork" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 TutorsAtWork. All rights reserved." "\0"
+            VALUE "OriginalFilename", "TutorsAtWork.exe" "\0"
+            VALUE "ProductName", "TutorsAtWork" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

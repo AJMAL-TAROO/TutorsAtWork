@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 import '../config/firebase_options.dart';
 
 class FirebaseDatabaseService {
-  FirebaseDatabaseService({http.Client? client}) : _client = client ?? http.Client();
+  FirebaseDatabaseService({http.Client? client})
+    : _client = client ?? http.Client();
 
   final http.Client _client;
 
@@ -55,11 +56,13 @@ class FirebaseDatabaseService {
   }
 
   Stream<Object?> watch(String path) async* {
+    var hasPrevious = false;
     Object? previous;
     while (true) {
       final current = await get(path);
       final currentJson = jsonEncode(current);
-      if (jsonEncode(previous) != currentJson) {
+      if (!hasPrevious || jsonEncode(previous) != currentJson) {
+        hasPrevious = true;
         previous = current;
         yield current;
       }
@@ -68,8 +71,14 @@ class FirebaseDatabaseService {
   }
 
   Uri _databaseUri(String path) {
-    final normalizedPath = path.split('/').where((part) => part.isNotEmpty).join('/');
-    return Uri.parse('${DefaultFirebaseOptions.databaseURL}/$normalizedPath.json');
+    final normalizedPath = path
+        .split('/')
+        .where((part) => part.isNotEmpty)
+        .map(Uri.encodeComponent)
+        .join('/');
+    return Uri.parse(
+      '${DefaultFirebaseOptions.databaseURL}/$normalizedPath.json',
+    );
   }
 
   void _ensureSuccess(http.Response response, String action) {

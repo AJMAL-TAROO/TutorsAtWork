@@ -2,10 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/classroom.dart';
+import '../screens/attendance/attendance_screen.dart';
 import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
+import '../screens/timetable/timetable_screen.dart';
 import 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -26,6 +28,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.classrooms,
         name: 'classrooms',
         builder: (context, state) => const ClassroomsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.timetable,
+        name: 'timetable',
+        builder: (context, state) => const TimetableScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.attendance,
+        name: 'attendance',
+        builder: (context, state) => const AttendanceScreen(),
       ),
       GoRoute(
         path: AppRoutes.classroomNotes,

@@ -1,6 +1,6 @@
-# TAW App
+# TutorsAtWork
 
-New Flutter cross-platform application for House of Tutors.
+Flutter cross-platform application for TutorsAtWork.
 
 ## Current Scope
 

@@ -1,11 +1,11 @@
 {
-    "name": "taw_app",
-    "short_name": "taw_app",
+    "name": "TutorsAtWork",
+    "short_name": "TutorsAtWork",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#3F0C75",
+    "theme_color": "#3F0C75",
+    "description": "TutorsAtWork learning workspace.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

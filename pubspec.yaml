@@ -1,5 +1,5 @@
 name: taw_app
-description: Cross-platform House of Tutors application for Windows, Android, and iOS.
+description: Cross-platform TutorsAtWork application for Windows, Android, and iOS.
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -21,6 +21,7 @@ dependencies:
   webview_flutter: ^4.13.1
   path_provider: ^2.1.5
   open_filex: ^4.7.0
+  webview_windows: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/taw_logo.png

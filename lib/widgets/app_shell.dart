@@ -26,18 +26,28 @@ class AppShell extends StatelessWidget {
       drawer: NavigationDrawer(
         selectedIndex: switch (GoRouterState.of(context).uri.path) {
           AppRoutes.classrooms => 1,
+          AppRoutes.timetable => 2,
+          AppRoutes.attendance => 3,
           _ => 0,
         },
         onDestinationSelected: (index) {
           Navigator.of(context).pop();
-          context.go(index == 0 ? AppRoutes.dashboard : AppRoutes.classrooms);
+          context.go(
+            switch (index) {
+              0 => AppRoutes.dashboard,
+              1 => AppRoutes.classrooms,
+              2 => AppRoutes.timetable,
+              3 => AppRoutes.attendance,
+              _ => AppRoutes.dashboard,
+            },
+          );
         },
         children: const [
           DrawerHeader(
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
-                'House Of Tutors',
+                'TutorsAtWork',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               ),
             ),
@@ -51,6 +61,16 @@ class AppShell extends StatelessWidget {
             icon: Icon(Icons.school_outlined),
             selectedIcon: Icon(Icons.school),
             label: Text('Classrooms'),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: Text('Timetable'),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.fact_check_outlined),
+            selectedIcon: Icon(Icons.fact_check),
+            label: Text('Attendance'),
           ),
         ],
       ),
