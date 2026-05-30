@@ -8,6 +8,7 @@ import '../../navigation/app_routes.dart';
 import '../../providers/attendance_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/classrooms_provider.dart';
+import '../../providers/students_provider.dart';
 import '../../providers/timetable_provider.dart';
 import '../../widgets/app_shell.dart';
 
@@ -69,6 +70,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final classrooms = ref.watch(classroomsProvider);
+    final students = ref.watch(studentsProvider);
     final timetable = ref.watch(timetableProvider);
     final attendanceSummary = ref.watch(_attendanceDashboardSummaryProvider);
     final now = ref
@@ -130,6 +132,16 @@ class DashboardScreen extends ConsumerWidget {
                       orElse: () => '-',
                     ),
                     onTap: () => context.go(AppRoutes.classrooms),
+                  ),
+                  _DashboardTile(
+                    width: tileWidth,
+                    icon: Icons.people_outline,
+                    title: 'Students',
+                    value: students.maybeWhen(
+                      data: (items) => items.length.toString(),
+                      orElse: () => '-',
+                    ),
+                    onTap: () => context.go(AppRoutes.students),
                   ),
                   _DashboardTile(
                     width: tileWidth,

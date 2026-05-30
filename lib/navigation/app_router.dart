@@ -7,6 +7,7 @@ import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
+import '../screens/students/students_screen.dart';
 import '../screens/timetable/timetable_screen.dart';
 import 'app_routes.dart';
 
@@ -28,6 +29,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.classrooms,
         name: 'classrooms',
         builder: (context, state) => const ClassroomsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.students,
+        name: 'students',
+        builder: (context, state) => const StudentsScreen(),
       ),
       GoRoute(
         path: AppRoutes.timetable,

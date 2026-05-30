@@ -26,21 +26,21 @@ class AppShell extends StatelessWidget {
       drawer: NavigationDrawer(
         selectedIndex: switch (GoRouterState.of(context).uri.path) {
           AppRoutes.classrooms => 1,
-          AppRoutes.timetable => 2,
-          AppRoutes.attendance => 3,
+          AppRoutes.students => 2,
+          AppRoutes.timetable => 3,
+          AppRoutes.attendance => 4,
           _ => 0,
         },
         onDestinationSelected: (index) {
           Navigator.of(context).pop();
-          context.go(
-            switch (index) {
-              0 => AppRoutes.dashboard,
-              1 => AppRoutes.classrooms,
-              2 => AppRoutes.timetable,
-              3 => AppRoutes.attendance,
-              _ => AppRoutes.dashboard,
-            },
-          );
+          context.go(switch (index) {
+            0 => AppRoutes.dashboard,
+            1 => AppRoutes.classrooms,
+            2 => AppRoutes.students,
+            3 => AppRoutes.timetable,
+            4 => AppRoutes.attendance,
+            _ => AppRoutes.dashboard,
+          });
         },
         children: const [
           DrawerHeader(
@@ -61,6 +61,11 @@ class AppShell extends StatelessWidget {
             icon: Icon(Icons.school_outlined),
             selectedIcon: Icon(Icons.school),
             label: Text('Classrooms'),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.people_outline),
+            selectedIcon: Icon(Icons.people),
+            label: Text('Students'),
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.calendar_month_outlined),
