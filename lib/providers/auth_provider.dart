@@ -22,4 +22,12 @@ class CurrentUserNotifier extends Notifier<AppUser?> {
   void clear() {
     state = null;
   }
+
+  void updateVirtualRoomIds(List<int> virtualRoomIds) {
+    final user = state;
+    if (user == null) {
+      return;
+    }
+    state = user.copyWith(virtualRoomIds: virtualRoomIds);
+  }
 }

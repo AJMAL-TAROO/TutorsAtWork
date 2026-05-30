@@ -7,12 +7,16 @@ class ClassroomCard extends StatelessWidget {
     required this.classroom,
     this.onOpen,
     this.onViewNotes,
+    this.onViewComments,
+    this.onDelete,
     super.key,
   });
 
   final Classroom classroom;
   final VoidCallback? onOpen;
   final VoidCallback? onViewNotes;
+  final VoidCallback? onViewComments;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +53,6 @@ class ClassroomCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Text('Teacher: ${classroom.teacherName}'),
-            if (classroom.teacherPhone.isNotEmpty)
-              Text('Phone: ${classroom.teacherPhone}'),
             const Spacer(),
             const SizedBox(height: 16),
             Wrap(
@@ -69,6 +69,17 @@ class ClassroomCard extends StatelessWidget {
                   icon: const Icon(Icons.folder_copy_outlined),
                   label: const Text('Notes'),
                 ),
+                OutlinedButton.icon(
+                  onPressed: onViewComments,
+                  icon: const Icon(Icons.forum_outlined),
+                  label: const Text('Comments'),
+                ),
+                if (onDelete != null)
+                  IconButton.filledTonal(
+                    tooltip: 'Delete classroom',
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline),
+                  ),
               ],
             ),
           ],
