@@ -34,4 +34,20 @@ class AppUser {
   final String fullName;
   final UserRole role;
   final List<int> virtualRoomIds;
+
+  AppUser copyWith({
+    String? key,
+    String? email,
+    String? fullName,
+    UserRole? role,
+    List<int>? virtualRoomIds,
+  }) {
+    return AppUser(
+      key: key ?? this.key,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      role: role ?? this.role,
+      virtualRoomIds: virtualRoomIds ?? this.virtualRoomIds,
+    );
+  }
 }

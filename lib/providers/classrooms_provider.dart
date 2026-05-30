@@ -8,9 +8,12 @@ final classroomServiceProvider = Provider<ClassroomService>((ref) {
   return RealtimeDatabaseClassroomService();
 });
 
-final classroomsProvider = FutureProvider<List<Classroom>>((ref) async {
+final classroomsProvider = StreamProvider<List<Classroom>>((ref) {
   final user = ref.watch(currentUserProvider);
   final service = ref.watch(classroomServiceProvider);
+  if (user == null) {
+    return Stream.value(const <Classroom>[]);
+  }
 
-  return service.classroomsForRoomIds(user?.virtualRoomIds ?? const []);
+  return service.watchClassroomsForUser(user);
 });

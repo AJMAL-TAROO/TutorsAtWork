@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../models/classroom.dart';
 import '../screens/attendance/attendance_screen.dart';
+import '../screens/classroom_comments/classroom_comments_screen.dart';
 import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/login/login_screen.dart';
@@ -59,6 +60,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             classroomId: classroomId,
             classroomTitle: classroom?.title ?? 'Classroom $classroomId',
             storageFolder: classroom?.storageFolder ?? '${classroomId}_NOTES',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.classroomComments,
+        name: 'classroom-comments',
+        builder: (context, state) {
+          final classroomId =
+              int.tryParse(state.pathParameters['classroomId'] ?? '') ?? 0;
+          final classroom = state.extra is Classroom
+              ? state.extra as Classroom
+              : null;
+
+          return ClassroomCommentsScreen(
+            classroomId: classroomId,
+            classroomTitle: classroom?.title ?? 'Classroom $classroomId',
           );
         },
       ),
