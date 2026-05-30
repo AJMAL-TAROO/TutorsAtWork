@@ -4,6 +4,7 @@ class AppRoutes {
   static const login = '/';
   static const dashboard = '/dashboard';
   static const classrooms = '/classrooms';
+  static const students = '/students';
   static const timetable = '/timetable';
   static const attendance = '/attendance';
   static const classroomNotes = '/classrooms/:classroomId/notes';
