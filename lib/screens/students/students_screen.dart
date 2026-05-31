@@ -33,6 +33,7 @@ class StudentsScreen extends ConsumerWidget {
         onPressed: () => context.go(AppRoutes.dashboard),
         icon: const Icon(Icons.arrow_back),
       ),
+      onBack: () async => context.go(AppRoutes.dashboard),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(
               onPressed: () => _showStudentForm(context, ref, user!),

@@ -2,9 +2,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import '../services/session_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return RealtimeDatabaseAuthService();
+});
+
+final initialUserProvider = Provider<AppUser?>((ref) => null);
+
+final sessionServiceProvider = Provider<SessionService>((ref) {
+  return SessionService();
 });
 
 final currentUserProvider = NotifierProvider<CurrentUserNotifier, AppUser?>(
@@ -13,21 +20,25 @@ final currentUserProvider = NotifierProvider<CurrentUserNotifier, AppUser?>(
 
 class CurrentUserNotifier extends Notifier<AppUser?> {
   @override
-  AppUser? build() => null;
+  AppUser? build() => ref.watch(initialUserProvider);
 
-  void setUser(AppUser user) {
+  Future<void> setUser(AppUser user) async {
     state = user;
+    await ref.read(sessionServiceProvider).saveUser(user);
   }
 
-  void clear() {
+  Future<void> clear() async {
     state = null;
+    await ref.read(sessionServiceProvider).clearUser();
   }
 
-  void updateVirtualRoomIds(List<int> virtualRoomIds) {
+  Future<void> updateVirtualRoomIds(List<int> virtualRoomIds) async {
     final user = state;
     if (user == null) {
       return;
     }
-    state = user.copyWith(virtualRoomIds: virtualRoomIds);
+    final updatedUser = user.copyWith(virtualRoomIds: virtualRoomIds);
+    state = updatedUser;
+    await ref.read(sessionServiceProvider).saveUser(updatedUser);
   }
 }

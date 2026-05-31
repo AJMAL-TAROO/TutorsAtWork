@@ -40,6 +40,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         onPressed: () => context.go(AppRoutes.dashboard),
         icon: const Icon(Icons.arrow_back),
       ),
+      onBack: () async => context.go(AppRoutes.dashboard),
       child: classrooms.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => EmptyState(

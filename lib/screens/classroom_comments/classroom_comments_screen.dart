@@ -35,6 +35,7 @@ class ClassroomCommentsScreen extends ConsumerWidget {
         onPressed: () => context.go(AppRoutes.classrooms),
         icon: const Icon(Icons.arrow_back),
       ),
+      onBack: () async => context.go(AppRoutes.classrooms),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(
               onPressed: () => _showCommentForm(context, ref, user!),
