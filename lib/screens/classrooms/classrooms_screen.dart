@@ -7,6 +7,7 @@ import '../../models/classroom.dart';
 import '../../navigation/app_routes.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/classrooms_provider.dart';
+import '../../services/classroom_link_launcher.dart';
 import '../../widgets/app_shell.dart';
 import '../../widgets/classroom_card.dart';
 import '../../widgets/empty_state.dart';
@@ -58,17 +59,7 @@ class ClassroomsScreen extends ConsumerWidget {
               final classroom = items[index];
               return ClassroomCard(
                 classroom: classroom,
-                onOpen: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        classroom.virtualRoomLink == null
-                            ? 'Virtual class link is not configured yet.'
-                            : 'Ready to open ${classroom.title}.',
-                      ),
-                    ),
-                  );
-                },
+                onOpen: () => _joinClassroom(context, ref, user, classroom),
                 onViewNotes: () {
                   context.go(
                     AppRoutes.notesForClassroom(classroom.id),
@@ -124,6 +115,59 @@ class ClassroomsScreen extends ConsumerWidget {
         );
       }
     }
+  }
+
+  Future<void> _joinClassroom(
+    BuildContext context,
+    WidgetRef ref,
+    AppUser? user,
+    Classroom classroom,
+  ) async {
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final link = await ref
+          .read(classroomServiceProvider)
+          .virtualRoomLinkForClassroom(user: user, classroom: classroom);
+      if (!context.mounted) {
+        return;
+      }
+      if (link == null || link.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Virtual class link is not configured.'),
+          ),
+        );
+        return;
+      }
+
+      await _openClassroomLink(link);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open classroom: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openClassroomLink(String link) async {
+    final uri = _normalizedUri(link);
+    final launched = await openClassroomLink(uri);
+    if (!launched) {
+      throw Exception('Could not launch $uri');
+    }
+  }
+
+  Uri _normalizedUri(String value) {
+    final trimmed = value.trim();
+    final uri = Uri.parse(trimmed);
+    if (uri.hasScheme) {
+      return uri;
+    }
+    return Uri.parse('https://$trimmed');
   }
 
   Future<void> _deleteClassroom(
