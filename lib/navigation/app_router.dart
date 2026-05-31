@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/classroom.dart';
+import '../providers/auth_provider.dart';
 import '../screens/attendance/attendance_screen.dart';
 import '../screens/classroom_comments/classroom_comments_screen.dart';
 import '../screens/classrooms/classrooms_screen.dart';
@@ -13,8 +14,20 @@ import '../screens/timetable/timetable_screen.dart';
 import 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final user = ref.watch(currentUserProvider);
+
   return GoRouter(
-    initialLocation: AppRoutes.login,
+    initialLocation: user == null ? AppRoutes.login : AppRoutes.dashboard,
+    redirect: (context, state) {
+      final isLoggingIn = state.uri.path == AppRoutes.login;
+      if (user == null && !isLoggingIn) {
+        return AppRoutes.login;
+      }
+      if (user != null && isLoggingIn) {
+        return AppRoutes.dashboard;
+      }
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.login,

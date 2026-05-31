@@ -30,6 +30,7 @@ class TimetableScreen extends ConsumerWidget {
         onPressed: () => context.go(AppRoutes.dashboard),
         icon: const Icon(Icons.arrow_back),
       ),
+      onBack: () async => context.go(AppRoutes.dashboard),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(
               onPressed: () => _showSessionDialog(
@@ -93,7 +94,10 @@ class TimetableScreen extends ConsumerWidget {
     final dayOptions = Map.fromEntries(
       List.generate(7, (index) {
         final day = index + 1;
-        return MapEntry(day, TimetableSession(day: day, timeRange: '', classroomTitle: '').dayName);
+        return MapEntry(
+          day,
+          TimetableSession(day: day, timeRange: '', classroomTitle: '').dayName,
+        );
       }),
     );
     final times = List.generate(
@@ -102,7 +106,8 @@ class TimetableScreen extends ConsumerWidget {
     );
 
     var selectedDay = session?.day ?? DateTime.now().weekday;
-    var selectedClassroomTitle = session?.classroomTitle ??
+    var selectedClassroomTitle =
+        session?.classroomTitle ??
         (classrooms.isEmpty ? '' : classrooms.first.title);
     var startTime = session?.timeRange.split(' - ').first ?? '08:00';
     var endTime = session?.timeRange.split(' - ').last ?? '09:00';
@@ -130,8 +135,9 @@ class TimetableScreen extends ConsumerWidget {
                             child: Text(entry.value),
                           ),
                       ],
-                      onChanged: (value) =>
-                          setDialogState(() => selectedDay = value ?? selectedDay),
+                      onChanged: (value) => setDialogState(
+                        () => selectedDay = value ?? selectedDay,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -156,13 +162,19 @@ class TimetableScreen extends ConsumerWidget {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             initialValue: startTime,
-                            decoration: const InputDecoration(labelText: 'Start'),
+                            decoration: const InputDecoration(
+                              labelText: 'Start',
+                            ),
                             items: [
                               for (final time in times)
-                                DropdownMenuItem(value: time, child: Text(time)),
+                                DropdownMenuItem(
+                                  value: time,
+                                  child: Text(time),
+                                ),
                             ],
-                            onChanged: (value) =>
-                                setDialogState(() => startTime = value ?? startTime),
+                            onChanged: (value) => setDialogState(
+                              () => startTime = value ?? startTime,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -172,10 +184,14 @@ class TimetableScreen extends ConsumerWidget {
                             decoration: const InputDecoration(labelText: 'End'),
                             items: [
                               for (final time in times)
-                                DropdownMenuItem(value: time, child: Text(time)),
+                                DropdownMenuItem(
+                                  value: time,
+                                  child: Text(time),
+                                ),
                             ],
-                            onChanged: (value) =>
-                                setDialogState(() => endTime = value ?? endTime),
+                            onChanged: (value) => setDialogState(
+                              () => endTime = value ?? endTime,
+                            ),
                           ),
                         ),
                       ],
@@ -208,7 +224,8 @@ class TimetableScreen extends ConsumerWidget {
     final service = ref.read(timetableServiceProvider);
     final newTimeRange = '$startTime - $endTime';
     if (oldSession != null &&
-        (oldSession.day != selectedDay || oldSession.timeRange != newTimeRange)) {
+        (oldSession.day != selectedDay ||
+            oldSession.timeRange != newTimeRange)) {
       await service.deleteSession(
         adminKey: user.key,
         day: oldSession.day,
@@ -224,9 +241,9 @@ class TimetableScreen extends ConsumerWidget {
     ref.invalidate(timetableProvider);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Timetable saved.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Timetable saved.')));
     }
   }
 
@@ -256,7 +273,9 @@ class TimetableScreen extends ConsumerWidget {
     if (confirmed != true) {
       return;
     }
-    await ref.read(timetableServiceProvider).deleteSession(
+    await ref
+        .read(timetableServiceProvider)
+        .deleteSession(
           adminKey: user.key,
           day: session.day,
           timeRange: session.timeRange,
@@ -282,7 +301,11 @@ class _DaySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dayName = TimetableSession(day: day, timeRange: '', classroomTitle: '').dayName;
+    final dayName = TimetableSession(
+      day: day,
+      timeRange: '',
+      classroomTitle: '',
+    ).dayName;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -307,7 +330,10 @@ class _DaySection extends StatelessWidget {
                           },
                           itemBuilder: (context) => const [
                             PopupMenuItem(value: 'edit', child: Text('Edit')),
-                            PopupMenuItem(value: 'delete', child: Text('Delete')),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
                           ],
                         )
                       : null,

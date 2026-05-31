@@ -5,13 +5,21 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'config/app_config.dart';
 import 'config/firebase_bootstrap.dart';
 import 'navigation/app_router.dart';
+import 'providers/auth_provider.dart';
+import 'services/session_service.dart';
 import 'themes/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseBootstrap.maybeInitialize();
+  final initialUser = await SessionService().loadUser();
 
-  runApp(const ProviderScope(child: TawApp()));
+  runApp(
+    ProviderScope(
+      overrides: [initialUserProvider.overrideWithValue(initialUser)],
+      child: const TawApp(),
+    ),
+  );
 }
 
 class TawApp extends ConsumerWidget {

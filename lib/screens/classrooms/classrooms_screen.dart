@@ -23,6 +23,12 @@ class ClassroomsScreen extends ConsumerWidget {
 
     return AppShell(
       title: 'Classrooms',
+      leading: IconButton(
+        tooltip: 'Back to dashboard',
+        onPressed: () => context.go(AppRoutes.dashboard),
+        icon: const Icon(Icons.arrow_back),
+      ),
+      onBack: () async => context.go(AppRoutes.dashboard),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(
               onPressed: () => _showClassroomForm(context, ref, user!),
@@ -101,7 +107,9 @@ class ClassroomsScreen extends ConsumerWidget {
           .read(classroomServiceProvider)
           .createClassroom(adminKey: user.key, draft: draft);
       final roomIds = {...user.virtualRoomIds, classroom.id}.toList()..sort();
-      ref.read(currentUserProvider.notifier).updateVirtualRoomIds(roomIds);
+      await ref
+          .read(currentUserProvider.notifier)
+          .updateVirtualRoomIds(roomIds);
       ref.invalidate(classroomsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -206,7 +214,9 @@ class ClassroomsScreen extends ConsumerWidget {
       final roomIds =
           user.virtualRoomIds.where((roomId) => roomId != classroom.id).toList()
             ..sort();
-      ref.read(currentUserProvider.notifier).updateVirtualRoomIds(roomIds);
+      await ref
+          .read(currentUserProvider.notifier)
+          .updateVirtualRoomIds(roomIds);
       ref.invalidate(classroomsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(

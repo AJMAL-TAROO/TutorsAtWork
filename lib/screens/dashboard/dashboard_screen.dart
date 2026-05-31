@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -91,11 +92,15 @@ class DashboardScreen extends ConsumerWidget {
 
     return AppShell(
       title: 'Dashboard',
+      onBack: () => _confirmExit(context),
       actions: [
         IconButton(
           tooltip: 'Sign out',
-          onPressed: () {
-            ref.read(currentUserProvider.notifier).clear();
+          onPressed: () async {
+            await ref.read(currentUserProvider.notifier).clear();
+            if (!context.mounted) {
+              return;
+            }
             context.go(AppRoutes.login);
           },
           icon: const Icon(Icons.logout),
@@ -199,6 +204,30 @@ class DashboardScreen extends ConsumerWidget {
     }
 
     return 'No more sessions today';
+  }
+
+  Future<void> _confirmExit(BuildContext context) async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave app?'),
+        content: const Text('Your session will stay signed in.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldExit == true) {
+      await SystemNavigator.pop();
+    }
   }
 }
 

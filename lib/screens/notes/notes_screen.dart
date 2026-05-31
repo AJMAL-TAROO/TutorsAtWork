@@ -345,6 +345,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         onPressed: () => context.go(AppRoutes.classrooms),
         icon: const Icon(Icons.arrow_back),
       ),
+      onBack: () async => context.go(AppRoutes.classrooms),
       floatingActionButton: canManageNotes
           ? FloatingActionButton.extended(
               onPressed: _isUploading || user == null

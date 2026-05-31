@@ -54,7 +54,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    ref.read(currentUserProvider.notifier).setUser(user);
+    await ref.read(currentUserProvider.notifier).setUser(user);
+    if (!mounted) {
+      return;
+    }
     context.go(AppRoutes.dashboard);
   }
 
