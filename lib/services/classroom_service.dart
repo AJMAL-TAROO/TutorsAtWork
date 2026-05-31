@@ -16,6 +16,11 @@ abstract class ClassroomService {
     required String adminKey,
     required Classroom classroom,
   });
+
+  Future<String?> virtualRoomLinkForClassroom({
+    required AppUser user,
+    required Classroom classroom,
+  });
 }
 
 class RealtimeDatabaseClassroomService implements ClassroomService {
@@ -136,6 +141,43 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
     });
   }
 
+  @override
+  Future<String?> virtualRoomLinkForClassroom({
+    required AppUser user,
+    required Classroom classroom,
+  }) async {
+    final classroomLink = _nonEmptyString(classroom.virtualRoomLink);
+    if (classroomLink != null) {
+      return classroomLink;
+    }
+
+    if (user.role == UserRole.admin) {
+      final value = await _databaseService.get('ADMIN/${user.key}');
+      final data = value is Map ? value : const {};
+      return _nonEmptyString(data['VR_LINK']);
+    }
+
+    final admins = await _databaseService.get(_databaseService.admins);
+    if (admins is! Map) {
+      return null;
+    }
+
+    for (final value in admins.values) {
+      if (value is! Map) {
+        continue;
+      }
+      if (!_intIds(value['VIRTUAL_ROOMS']).contains(classroom.id)) {
+        continue;
+      }
+      final link = _nonEmptyString(value['VR_LINK']);
+      if (link != null) {
+        return link;
+      }
+    }
+
+    return null;
+  }
+
   Future<void> _addClassroomToAdmin({
     required String adminKey,
     required int classroomId,
@@ -189,6 +231,11 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
         .map((id) => int.tryParse(id.trim()))
         .whereType<int>()
         .toList();
+  }
+
+  String? _nonEmptyString(Object? value) {
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? null : text;
   }
 
   String _userPath(AppUser user) {
