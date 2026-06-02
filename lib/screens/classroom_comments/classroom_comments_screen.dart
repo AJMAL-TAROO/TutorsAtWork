@@ -26,7 +26,7 @@ class ClassroomCommentsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final comments = ref.watch(classroomCommentsProvider(classroomId));
-    final canManage = user?.role == UserRole.admin;
+    final canAddComment = user != null;
 
     return AppShell(
       title: 'Comments',
@@ -36,9 +36,9 @@ class ClassroomCommentsScreen extends ConsumerWidget {
         icon: const Icon(Icons.arrow_back),
       ),
       onBack: () async => context.go(AppRoutes.classrooms),
-      floatingActionButton: canManage
+      floatingActionButton: canAddComment
           ? FloatingActionButton.extended(
-              onPressed: () => _showCommentForm(context, ref, user!),
+              onPressed: () => _showCommentForm(context, ref, user),
               icon: const Icon(Icons.add_comment_outlined),
               label: const Text('Add comment'),
             )
@@ -55,7 +55,7 @@ class ClassroomCommentsScreen extends ConsumerWidget {
             return EmptyState(
               icon: Icons.forum_outlined,
               title: 'No comments yet',
-              message: canManage
+              message: canAddComment
                   ? 'Add the first classroom comment for $classroomTitle.'
                   : 'Classroom comments will appear here.',
             );
@@ -70,13 +70,14 @@ class ClassroomCommentsScreen extends ConsumerWidget {
                 return _ClassroomHeader(
                   classroomId: classroomId,
                   classroomTitle: classroomTitle,
-                  canManage: canManage,
+                  canAddComment: canAddComment,
                 );
               }
               final comment = items[index - 1];
+              final canManageComment = _canManageComment(user, comment);
               return _CommentCard(
                 comment: comment,
-                canManage: canManage,
+                canManage: canManageComment,
                 onEdit: () =>
                     _showCommentForm(context, ref, user!, comment: comment),
                 onDelete: () => _deleteComment(context, ref, comment),
@@ -108,6 +109,8 @@ class ClassroomCommentsScreen extends ConsumerWidget {
         await service.addComment(
           classroomId: classroomId,
           email: user.email,
+          authorKey: user.key,
+          authorRole: user.role.name,
           comment: text,
         );
       } else {
@@ -171,18 +174,32 @@ class ClassroomCommentsScreen extends ConsumerWidget {
       SnackBar(content: Text(message), duration: const Duration(seconds: 4)),
     );
   }
+
+  bool _canManageComment(AppUser? user, ClassroomComment comment) {
+    if (user == null) {
+      return false;
+    }
+    if (user.role == UserRole.admin) {
+      return true;
+    }
+    if (comment.authorKey.isNotEmpty) {
+      return comment.authorKey == user.key;
+    }
+    return comment.email.trim().toLowerCase() ==
+        user.email.trim().toLowerCase();
+  }
 }
 
 class _ClassroomHeader extends StatelessWidget {
   const _ClassroomHeader({
     required this.classroomId,
     required this.classroomTitle,
-    required this.canManage,
+    required this.canAddComment,
   });
 
   final int classroomId;
   final String classroomTitle;
-  final bool canManage;
+  final bool canAddComment;
 
   @override
   Widget build(BuildContext context) {
@@ -191,8 +208,8 @@ class _ClassroomHeader extends StatelessWidget {
       leading: const CircleAvatar(child: Icon(Icons.school_outlined)),
       title: Text(classroomTitle),
       subtitle: Text(
-        canManage
-            ? 'Manage comments for Classroom $classroomId'
+        canAddComment
+            ? 'View and add comments for Classroom $classroomId'
             : 'View comments for Classroom $classroomId',
       ),
     );

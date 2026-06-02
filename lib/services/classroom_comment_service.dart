@@ -9,6 +9,8 @@ abstract class ClassroomCommentService {
   Future<void> addComment({
     required int classroomId,
     required String email,
+    required String authorKey,
+    required String authorRole,
     required String comment,
   });
 
@@ -43,12 +45,16 @@ class RealtimeDatabaseClassroomCommentService
   Future<void> addComment({
     required int classroomId,
     required String email,
+    required String authorKey,
+    required String authorRole,
     required String comment,
   }) async {
     final id = 'COMMENT_${DateTime.now().millisecondsSinceEpoch}';
     await _databaseService.update(_commentsPath(classroomId), {
       id: {
         'EMAIL': email,
+        'AUTHOR_KEY': authorKey,
+        'AUTHOR_ROLE': authorRole,
         'DATE': DateFormat('yyyy-MM-dd').format(DateTime.now()),
         'COMMENT': comment,
       },

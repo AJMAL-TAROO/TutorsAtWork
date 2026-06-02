@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/app_user.dart';
 import '../../models/classroom.dart';
 import '../../models/timetable_session.dart';
 import '../../navigation/app_routes.dart';
 import '../../providers/attendance_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/classrooms_provider.dart';
+import '../../providers/student_feedback_provider.dart';
 import '../../providers/students_provider.dart';
 import '../../providers/timetable_provider.dart';
 import '../../widgets/app_shell.dart';
@@ -70,25 +72,33 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
+    final isAdmin = user?.role == UserRole.admin;
     final classrooms = ref.watch(classroomsProvider);
-    final students = ref.watch(studentsProvider);
-    final timetable = ref.watch(timetableProvider);
-    final attendanceSummary = ref.watch(_attendanceDashboardSummaryProvider);
+    final feedback = ref.watch(studentFeedbackProvider);
+    final students = isAdmin ? ref.watch(studentsProvider) : null;
+    final timetable = isAdmin ? ref.watch(timetableProvider) : null;
+    final attendanceSummary = isAdmin
+        ? ref.watch(_attendanceDashboardSummaryProvider)
+        : null;
     final now = ref
         .watch(_dashboardClockProvider)
         .maybeWhen(data: (value) => value, orElse: DateTime.now);
-    final timetableSummary = timetable.maybeWhen(
-      data: (sessions) => _todayTimetableSummary(sessions, now),
-      loading: () => 'Checking timetable...',
-      error: (error, stackTrace) => 'Timetable unavailable',
-      orElse: () => 'No session today',
-    );
-    final attendanceValue = attendanceSummary.maybeWhen(
-      data: (summary) => summary,
-      loading: () => 'Checking attendance...',
-      error: (error, stackTrace) => 'Attendance unavailable',
-      orElse: () => 'Attendance unavailable',
-    );
+    final timetableSummary =
+        timetable?.maybeWhen(
+          data: (sessions) => _todayTimetableSummary(sessions, now),
+          loading: () => 'Checking timetable...',
+          error: (error, stackTrace) => 'Timetable unavailable',
+          orElse: () => 'No session today',
+        ) ??
+        '-';
+    final attendanceValue =
+        attendanceSummary?.maybeWhen(
+          data: (summary) => summary,
+          loading: () => 'Checking attendance...',
+          error: (error, stackTrace) => 'Attendance unavailable',
+          orElse: () => 'Attendance unavailable',
+        ) ??
+        '-';
 
     return AppShell(
       title: 'Dashboard',
@@ -115,7 +125,9 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your classroom access, notes, timetable, and attendance will live here as features are migrated.',
+            isAdmin
+                ? 'Your classroom access, notes, timetable, attendance, and student feedback live here.'
+                : 'Your classrooms, notes, comments, and tutor feedback live here.',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
@@ -140,34 +152,49 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   _DashboardTile(
                     width: tileWidth,
-                    icon: Icons.people_outline,
-                    title: 'Students',
-                    value: students.maybeWhen(
+                    icon: Icons.rate_review_outlined,
+                    title: 'Feedback',
+                    value: feedback.maybeWhen(
                       data: (items) => items.length.toString(),
+                      loading: () => 'Loading...',
                       orElse: () => '-',
                     ),
-                    onTap: () => context.go(AppRoutes.students),
+                    onTap: () => context.go(AppRoutes.feedback),
                   ),
-                  _DashboardTile(
-                    width: tileWidth,
-                    icon: Icons.calendar_month_outlined,
-                    title: 'Timetable',
-                    value: timetableSummary,
-                    onTap: () => context.go(AppRoutes.timetable),
-                  ),
-                  _DashboardTile(
-                    width: tileWidth,
-                    icon: Icons.fact_check_outlined,
-                    title: 'Attendance',
-                    value: attendanceValue,
-                    onTap: () => context.go(AppRoutes.attendance),
-                  ),
-                  _DashboardTile(
-                    width: tileWidth,
-                    icon: Icons.description_outlined,
-                    title: 'Exam AI',
-                    value: 'Future',
-                  ),
+                  if (isAdmin) ...[
+                    _DashboardTile(
+                      width: tileWidth,
+                      icon: Icons.people_outline,
+                      title: 'Students',
+                      value:
+                          students?.maybeWhen(
+                            data: (items) => items.length.toString(),
+                            orElse: () => '-',
+                          ) ??
+                          '-',
+                      onTap: () => context.go(AppRoutes.students),
+                    ),
+                    _DashboardTile(
+                      width: tileWidth,
+                      icon: Icons.calendar_month_outlined,
+                      title: 'Timetable',
+                      value: timetableSummary,
+                      onTap: () => context.go(AppRoutes.timetable),
+                    ),
+                    _DashboardTile(
+                      width: tileWidth,
+                      icon: Icons.fact_check_outlined,
+                      title: 'Attendance',
+                      value: attendanceValue,
+                      onTap: () => context.go(AppRoutes.attendance),
+                    ),
+                    _DashboardTile(
+                      width: tileWidth,
+                      icon: Icons.description_outlined,
+                      title: 'Exam AI',
+                      value: 'Future',
+                    ),
+                  ],
                 ],
               );
             },

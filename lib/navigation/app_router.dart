@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/app_user.dart';
 import '../models/classroom.dart';
 import '../providers/auth_provider.dart';
 import '../screens/attendance/attendance_screen.dart';
 import '../screens/classroom_comments/classroom_comments_screen.dart';
 import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
+import '../screens/feedback/feedback_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
 import '../screens/students/students_screen.dart';
@@ -19,12 +21,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: user == null ? AppRoutes.login : AppRoutes.dashboard,
     redirect: (context, state) {
-      final isLoggingIn = state.uri.path == AppRoutes.login;
+      final path = state.uri.path;
+      final isLoggingIn = path == AppRoutes.login;
       if (user == null && !isLoggingIn) {
         return AppRoutes.login;
       }
       if (user != null && isLoggingIn) {
         return AppRoutes.dashboard;
+      }
+      if (user?.role == UserRole.student &&
+          _studentBlockedPaths.contains(path)) {
+        return AppRoutes.dashboard;
+      }
+      final classroomChildRouteId = _classroomChildRouteId(path);
+      if (user != null &&
+          classroomChildRouteId != null &&
+          !user.virtualRoomIds.contains(classroomChildRouteId)) {
+        return AppRoutes.classrooms;
       }
       return null;
     },
@@ -58,6 +71,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.attendance,
         name: 'attendance',
         builder: (context, state) => const AttendanceScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.feedback,
+        name: 'feedback',
+        builder: (context, state) => const FeedbackScreen(),
       ),
       GoRoute(
         path: AppRoutes.classroomNotes,
@@ -95,3 +113,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+const _studentBlockedPaths = {
+  AppRoutes.students,
+  AppRoutes.timetable,
+  AppRoutes.attendance,
+};
+
+int? _classroomChildRouteId(String path) {
+  final match = RegExp(
+    r'^/classrooms/(\d+)/(notes|comments)$',
+  ).firstMatch(path);
+  if (match == null) {
+    return null;
+  }
+  return int.tryParse(match.group(1) ?? '');
+}
