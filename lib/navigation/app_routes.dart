@@ -8,6 +8,7 @@ class AppRoutes {
   static const timetable = '/timetable';
   static const attendance = '/attendance';
   static const feedback = '/feedback';
+  static const whiteboard = '/whiteboard';
   static const classroomNotes = '/classrooms/:classroomId/notes';
   static const classroomComments = '/classrooms/:classroomId/comments';
 

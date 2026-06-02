@@ -190,6 +190,13 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     _DashboardTile(
                       width: tileWidth,
+                      icon: Icons.draw_outlined,
+                      title: 'Whiteboard',
+                      value: 'Open',
+                      onTap: () => context.go(AppRoutes.whiteboard),
+                    ),
+                    _DashboardTile(
+                      width: tileWidth,
                       icon: Icons.description_outlined,
                       title: 'Exam AI',
                       value: 'Future',

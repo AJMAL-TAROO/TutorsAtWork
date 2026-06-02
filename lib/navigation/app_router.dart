@@ -13,6 +13,7 @@ import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
 import '../screens/students/students_screen.dart';
 import '../screens/timetable/timetable_screen.dart';
+import '../screens/whiteboard/whiteboard_screen.dart';
 import 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -78,6 +79,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const FeedbackScreen(),
       ),
       GoRoute(
+        path: AppRoutes.whiteboard,
+        name: 'whiteboard',
+        builder: (context, state) => const WhiteboardScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.classroomNotes,
         name: 'classroom-notes',
         builder: (context, state) {
@@ -118,6 +124,7 @@ const _studentBlockedPaths = {
   AppRoutes.students,
   AppRoutes.timetable,
   AppRoutes.attendance,
+  AppRoutes.whiteboard,
 };
 
 int? _classroomChildRouteId(String path) {
