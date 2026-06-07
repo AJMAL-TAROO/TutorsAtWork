@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +12,11 @@ import '../../navigation/app_routes.dart';
 import '../../providers/attendance_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/classrooms_provider.dart';
+import '../../providers/exam_ai_provider.dart';
 import '../../providers/student_feedback_provider.dart';
 import '../../providers/students_provider.dart';
 import '../../providers/timetable_provider.dart';
+import '../../services/exam_ai_window_launcher.dart';
 import '../../widgets/app_shell.dart';
 
 final _dashboardClockProvider = StreamProvider<DateTime>((ref) async* {
@@ -199,7 +203,8 @@ class DashboardScreen extends ConsumerWidget {
                       width: tileWidth,
                       icon: Icons.description_outlined,
                       title: 'Exam AI',
-                      value: 'Future',
+                      value: 'Open',
+                      onTap: () => unawaited(_openExamAi(context, ref, user)),
                     ),
                   ],
                 ],
@@ -261,6 +266,40 @@ class DashboardScreen extends ConsumerWidget {
 
     if (shouldExit == true) {
       await SystemNavigator.pop();
+    }
+  }
+
+  Future<void> _openExamAi(
+    BuildContext context,
+    WidgetRef ref,
+    AppUser? user,
+  ) async {
+    if (user == null || user.role != UserRole.admin) {
+      return;
+    }
+
+    try {
+      final uri = await ref.read(examAiServiceProvider).createSessionUri(user);
+      final openedDetached = await openExamAiWindow(uri);
+      if (!context.mounted) {
+        return;
+      }
+
+      if (openedDetached) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Exam AI opened in a new window.')),
+        );
+        return;
+      }
+
+      context.go(AppRoutes.examAi, extra: uri.toString());
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open Exam AI: $error')));
     }
   }
 }

@@ -9,6 +9,7 @@ class AppRoutes {
   static const attendance = '/attendance';
   static const feedback = '/feedback';
   static const whiteboard = '/whiteboard';
+  static const examAi = '/exam-ai';
   static const classroomNotes = '/classrooms/:classroomId/notes';
   static const classroomComments = '/classrooms/:classroomId/comments';
 

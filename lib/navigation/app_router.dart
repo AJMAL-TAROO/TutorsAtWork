@@ -8,6 +8,7 @@ import '../screens/attendance/attendance_screen.dart';
 import '../screens/classroom_comments/classroom_comments_screen.dart';
 import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
+import '../screens/exam_ai/exam_ai_screen.dart';
 import '../screens/feedback/feedback_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
@@ -84,6 +85,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WhiteboardScreen(),
       ),
       GoRoute(
+        path: AppRoutes.examAi,
+        name: 'exam-ai',
+        builder: (context, state) => ExamAiScreen(
+          initialUrl: state.extra is String ? state.extra as String : null,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.classroomNotes,
         name: 'classroom-notes',
         builder: (context, state) {
@@ -125,6 +133,7 @@ const _studentBlockedPaths = {
   AppRoutes.timetable,
   AppRoutes.attendance,
   AppRoutes.whiteboard,
+  AppRoutes.examAi,
 };
 
 int? _classroomChildRouteId(String path) {

@@ -6,11 +6,19 @@ import 'config/app_config.dart';
 import 'config/firebase_bootstrap.dart';
 import 'navigation/app_router.dart';
 import 'providers/auth_provider.dart';
+import 'screens/exam_ai/exam_ai_window_app.dart';
 import 'services/session_service.dart';
 import 'themes/app_theme.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final examAiUri = _examAiUriFromArgs(args);
+  if (examAiUri != null) {
+    runApp(ExamAiWindowApp(uri: examAiUri));
+    return;
+  }
+
   await FirebaseBootstrap.maybeInitialize();
   final initialUser = await SessionService().loadUser();
 
@@ -48,4 +56,20 @@ class TawApp extends ConsumerWidget {
       },
     );
   }
+}
+
+Uri? _examAiUriFromArgs(List<String> args) {
+  if (!args.contains('--exam-ai-window')) {
+    return null;
+  }
+
+  for (final arg in args) {
+    const prefix = '--exam-ai-url=';
+    if (!arg.startsWith(prefix)) {
+      continue;
+    }
+    return Uri.tryParse(arg.substring(prefix.length));
+  }
+
+  return null;
 }
