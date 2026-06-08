@@ -82,7 +82,8 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
       await controller.initialize();
       await controller.setBackgroundColor(Colors.white);
       await controller.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
-      await controller.loadUrl(widget.uri.toString());
+      await controller.clearCache();
+      await controller.loadUrl(_windowsUri(widget.uri).toString());
 
       if (!mounted) {
         controller.dispose();
@@ -104,6 +105,15 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
             'Could not start Exam AI. Make sure Microsoft Edge WebView2 Runtime is installed. Details: $error';
       });
     }
+  }
+
+  Uri _windowsUri(Uri uri) {
+    return uri.replace(
+      queryParameters: {
+        ...uri.queryParameters,
+        'webview_refresh': DateTime.now().millisecondsSinceEpoch.toString(),
+      },
+    );
   }
 }
 
