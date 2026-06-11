@@ -17,7 +17,16 @@ class ExamAiWindowApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       home: Scaffold(
         appBar: AppBar(title: const Text('Exam AI')),
-        body: SafeArea(child: ExamAiWebView(uri: uri)),
+        body: SafeArea(
+          child: ExamAiWebView(
+            uri: uri,
+            onNativeMessage: (_) async => {
+              'requestId': '',
+              'ok': false,
+              'message': 'Open Exam AI inside the main TAW window.',
+            },
+          ),
+        ),
       ),
     );
   }

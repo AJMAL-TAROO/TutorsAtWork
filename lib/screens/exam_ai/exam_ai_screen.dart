@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +7,11 @@ import 'package:go_router/go_router.dart';
 import '../../models/app_user.dart';
 import '../../navigation/app_routes.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/classrooms_provider.dart';
 import '../../providers/exam_ai_provider.dart';
+import '../../providers/notes_provider.dart';
+import '../../utils/generated_pdf_saver.dart';
+import '../../utils/note_file_picker.dart';
 import '../../widgets/app_shell.dart';
 import '../../widgets/exam_ai_web_view.dart';
 
@@ -56,7 +62,10 @@ class _ExamAiScreenState extends ConsumerState<ExamAiScreen> {
         if (snapshot.hasError || !snapshot.hasData) {
           return _ExamAiError(message: snapshot.error.toString());
         }
-        return ExamAiWebView(uri: snapshot.data!);
+        return ExamAiWebView(
+          uri: snapshot.data!,
+          onNativeMessage: (message) => _handleNativeMessage(user, message),
+        );
       },
     );
   }
@@ -67,6 +76,91 @@ class _ExamAiScreenState extends ConsumerState<ExamAiScreen> {
       return Future<Uri>.sync(() => Uri.parse(url));
     }
     return ref.read(examAiServiceProvider).createSessionUri(user);
+  }
+
+  Future<Map<String, Object?>> _handleNativeMessage(
+    AppUser user,
+    Map<String, Object?> message,
+  ) async {
+    final requestId = message['requestId']?.toString() ?? '';
+    final action = message['action']?.toString() ?? '';
+    final fileName = _pdfFileName(message['fileName']?.toString() ?? '');
+    final encodedPdf = message['pdfBase64']?.toString() ?? '';
+
+    if (requestId.isEmpty || encodedPdf.isEmpty) {
+      throw StateError('Exam AI sent an incomplete PDF request.');
+    }
+
+    final bytes = base64Decode(encodedPdf);
+    if (bytes.isEmpty) {
+      throw StateError('Exam AI generated an empty PDF.');
+    }
+    if (bytes.length > 40 * 1024 * 1024) {
+      throw StateError('The generated PDF is too large. Use fewer questions.');
+    }
+
+    if (action == 'downloadPdf') {
+      await saveGeneratedPdf(fileName: fileName, bytes: bytes);
+      return {
+        'requestId': requestId,
+        'ok': true,
+        'fileName': fileName,
+        'message': 'PDF saved and opened.',
+      };
+    }
+
+    if (action == 'uploadPdf') {
+      final classroomId = int.tryParse(
+        message['classroomId']?.toString() ?? '',
+      );
+      if (classroomId == null) {
+        throw StateError('Select a classroom before uploading.');
+      }
+
+      final classrooms = await ref
+          .read(classroomServiceProvider)
+          .classroomsForRoomIds(user.virtualRoomIds);
+      final classroom = classrooms
+          .where((item) => item.id == classroomId)
+          .firstOrNull;
+      if (classroom == null) {
+        throw StateError(
+          'This classroom does not belong to the signed-in tutor.',
+        );
+      }
+
+      await ref
+          .read(noteServiceProvider)
+          .uploadNote(
+            classroomId: classroom.id,
+            storageFolder: classroom.storageFolder,
+            file: PickedNoteFile(
+              name: fileName,
+              size: bytes.length,
+              bytes: bytes,
+            ),
+            uploadedBy: user,
+          );
+      ref.invalidate(notesProvider(classroom.storageFolder));
+
+      return {
+        'requestId': requestId,
+        'ok': true,
+        'fileName': fileName,
+        'message': 'Uploaded to ${classroom.title} notes.',
+      };
+    }
+
+    throw StateError('Unsupported Exam AI action.');
+  }
+
+  String _pdfFileName(String value) {
+    final cleaned = value
+        .replaceAll(RegExp(r'[\\/:*?"<>|]+'), '-')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    final name = cleaned.isEmpty ? 'Generated Exam Paper' : cleaned;
+    return name.toLowerCase().endsWith('.pdf') ? name : '$name.pdf';
   }
 }
 

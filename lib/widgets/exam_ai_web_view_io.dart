@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,9 +7,15 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_windows/webview_windows.dart';
 
 class ExamAiWebView extends StatefulWidget {
-  const ExamAiWebView({required this.uri, super.key});
+  const ExamAiWebView({
+    required this.uri,
+    required this.onNativeMessage,
+    super.key,
+  });
 
   final Uri uri;
+  final Future<Map<String, Object?>> Function(Map<String, Object?> message)
+  onNativeMessage;
 
   @override
   State<ExamAiWebView> createState() => _ExamAiWebViewState();
@@ -16,6 +24,7 @@ class ExamAiWebView extends StatefulWidget {
 class _ExamAiWebViewState extends State<ExamAiWebView> {
   WebViewController? _mobileController;
   WebviewController? _windowsController;
+  StreamSubscription<dynamic>? _windowsMessageSubscription;
   var _isLoading = true;
   String? _errorMessage;
 
@@ -28,6 +37,10 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
     } else {
       _mobileController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..addJavaScriptChannel(
+          'TawNativeBridge',
+          onMessageReceived: (message) => _handleMobileMessage(message.message),
+        )
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageFinished: (_) {
@@ -51,6 +64,7 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
 
   @override
   void dispose() {
+    _windowsMessageSubscription?.cancel();
     _windowsController?.dispose();
     super.dispose();
   }
@@ -82,6 +96,9 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
       await controller.initialize();
       await controller.setBackgroundColor(Colors.white);
       await controller.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
+      _windowsMessageSubscription = controller.webMessage.listen(
+        (message) => _handleWindowsMessage(controller, message),
+      );
       await controller.clearCache();
       await controller.loadUrl(_windowsUri(widget.uri).toString());
 
@@ -114,6 +131,56 @@ class _ExamAiWebViewState extends State<ExamAiWebView> {
         'webview_refresh': DateTime.now().millisecondsSinceEpoch.toString(),
       },
     );
+  }
+
+  Future<void> _handleMobileMessage(String rawMessage) async {
+    final controller = _mobileController;
+    if (controller == null) {
+      return;
+    }
+    final response = await _handleMessage(rawMessage);
+    await controller.runJavaScript(
+      'window.tawNativeResult(${jsonEncode(response)});',
+    );
+  }
+
+  Future<void> _handleWindowsMessage(
+    WebviewController controller,
+    dynamic rawMessage,
+  ) async {
+    final response = await _handleMessage(rawMessage);
+    await controller.executeScript(
+      'window.tawNativeResult(${jsonEncode(response)});',
+    );
+  }
+
+  Future<Map<String, Object?>> _handleMessage(dynamic rawMessage) async {
+    Map<String, Object?> message;
+    try {
+      final decoded = rawMessage is String
+          ? jsonDecode(rawMessage)
+          : rawMessage;
+      if (decoded is! Map) {
+        throw const FormatException('Native message must be an object.');
+      }
+      message = decoded.map((key, value) => MapEntry(key.toString(), value));
+    } catch (error) {
+      return {
+        'requestId': '',
+        'ok': false,
+        'message': 'Could not read Exam AI request: $error',
+      };
+    }
+
+    try {
+      return await widget.onNativeMessage(message);
+    } catch (error) {
+      return {
+        'requestId': message['requestId']?.toString() ?? '',
+        'ok': false,
+        'message': error.toString().replaceFirst('Bad state: ', ''),
+      };
+    }
   }
 }
 
