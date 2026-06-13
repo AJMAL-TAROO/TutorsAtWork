@@ -26,7 +26,14 @@ class NoteFile {
   }
 
   bool get isImage {
-    return const {'jpg', 'jpeg', 'png', 'gif'}.contains(extension);
+    return const {
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'bmp',
+    }.contains(extension);
   }
 
   bool get isPdf {

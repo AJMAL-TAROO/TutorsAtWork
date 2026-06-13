@@ -19,6 +19,10 @@ class FirebaseDatabaseService {
     return 'NUMBERS/ID_CLASSROOM_${classroomId}_NOTES/NUMBER';
   }
 
+  String homeworkCounter(int classroomId) {
+    return 'NUMBERS/ID_CLASSROOM_${classroomId}_HOMEWORK/NUMBER';
+  }
+
   String notesFolder(String storageFolder) {
     return storageFolder;
   }
@@ -53,6 +57,42 @@ class FirebaseDatabaseService {
   Future<void> remove(String path) async {
     final response = await _client.delete(_databaseUri(path));
     _ensureSuccess(response, 'delete $path');
+  }
+
+  Future<int> reserveNextCounter(
+    String path, {
+    int minimumCurrentValue = 1,
+    int maxAttempts = 8,
+  }) async {
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      final readResponse = await _client.get(
+        _databaseUri(path),
+        headers: const {'X-Firebase-ETag': 'true'},
+      );
+      _ensureSuccess(readResponse, 'read counter $path');
+      final currentValue =
+          int.tryParse(
+            readResponse.body.trim() == 'null' ? '' : readResponse.body,
+          ) ??
+          minimumCurrentValue;
+      final nextValue =
+          (currentValue < minimumCurrentValue
+              ? minimumCurrentValue
+              : currentValue) +
+          1;
+      final etag = readResponse.headers['etag'] ?? '*';
+      final writeResponse = await _client.put(
+        _databaseUri(path),
+        headers: {'Content-Type': 'application/json', 'if-match': etag},
+        body: jsonEncode(nextValue),
+      );
+      if (writeResponse.statusCode == 412) {
+        continue;
+      }
+      _ensureSuccess(writeResponse, 'reserve counter $path');
+      return nextValue;
+    }
+    throw StateError('Could not reserve a unique file ID. Please try again.');
   }
 
   Stream<Object?> watch(String path) async* {

@@ -6,10 +6,12 @@ import 'dart:typed_data';
 
 import 'note_file_picker.dart';
 
-Future<PickedNoteFile?> pickNoteFile() {
+Future<PickedNoteFile?> pickNoteFile({List<String>? allowedExtensions}) {
   final completer = Completer<PickedNoteFile?>();
   final input = html.FileUploadInputElement()
-    ..accept = '*/*'
+    ..accept = allowedExtensions == null
+        ? '*/*'
+        : allowedExtensions.map((extension) => '.$extension').join(',')
     ..multiple = false;
 
   input.onChange.first.then((_) {

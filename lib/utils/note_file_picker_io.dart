@@ -2,8 +2,12 @@ import 'package:file_picker/file_picker.dart';
 
 import 'note_file_picker.dart';
 
-Future<PickedNoteFile?> pickNoteFile() async {
-  final result = await FilePicker.pickFiles(type: FileType.any, withData: true);
+Future<PickedNoteFile?> pickNoteFile({List<String>? allowedExtensions}) async {
+  final result = await FilePicker.pickFiles(
+    type: allowedExtensions == null ? FileType.any : FileType.custom,
+    allowedExtensions: allowedExtensions,
+    withData: true,
+  );
   if (result == null || result.files.isEmpty) {
     return null;
   }

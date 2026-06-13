@@ -15,6 +15,6 @@ class PickedNoteFile {
   final List<int> bytes;
 }
 
-Future<PickedNoteFile?> pickNoteFile() {
-  return implementation.pickNoteFile();
+Future<PickedNoteFile?> pickNoteFile({List<String>? allowedExtensions}) {
+  return implementation.pickNoteFile(allowedExtensions: allowedExtensions);
 }

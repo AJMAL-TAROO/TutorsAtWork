@@ -1,4 +1,5 @@
 import 'firebase_database_service.dart';
+import 'storage_service.dart';
 import '../models/app_user.dart';
 import '../models/classroom.dart';
 
@@ -24,10 +25,14 @@ abstract class ClassroomService {
 }
 
 class RealtimeDatabaseClassroomService implements ClassroomService {
-  RealtimeDatabaseClassroomService({FirebaseDatabaseService? databaseService})
-    : _databaseService = databaseService ?? FirebaseDatabaseService();
+  RealtimeDatabaseClassroomService({
+    FirebaseDatabaseService? databaseService,
+    StorageService? storageService,
+  }) : _databaseService = databaseService ?? FirebaseDatabaseService(),
+       _storageService = storageService ?? StorageService();
 
   final FirebaseDatabaseService _databaseService;
+  final StorageService _storageService;
 
   @override
   Future<List<Classroom>> classroomsForRoomIds(List<int> roomIds) async {
@@ -99,6 +104,10 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
       'NUMBERS/ID_CLASSROOM_${classroomId}_NOTES/NUMBER',
       1,
     );
+    await _databaseService.set(
+      'NUMBERS/ID_CLASSROOM_${classroomId}_HOMEWORK/NUMBER',
+      1,
+    );
     await _addClassroomToAdmin(adminKey: adminKey, classroomId: classroomId);
     await _databaseService.set('ADMIN/$adminKey/LOGS/LAST_CREATED_CLASSROOM', {
       'CLASSROOM_ID': classroomId,
@@ -123,6 +132,7 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
     required String adminKey,
     required Classroom classroom,
   }) async {
+    await _deleteHomeworkFiles(classroom.id);
     await _removeClassroomFromAdmin(
       adminKey: adminKey,
       classroomId: classroom.id,
@@ -132,13 +142,35 @@ class RealtimeDatabaseClassroomService implements ClassroomService {
       '${_databaseService.classrooms}/CLASSROOM_${classroom.id}',
     );
     await _databaseService.remove(classroom.storageFolder);
+    await _databaseService.remove('${classroom.id}_HOMEWORK');
     await _databaseService.remove('NUMBERS/ID_CLASSROOM_${classroom.id}_NOTES');
+    await _databaseService.remove(
+      'NUMBERS/ID_CLASSROOM_${classroom.id}_HOMEWORK',
+    );
     await _databaseService.set('ADMIN/$adminKey/LOGS/LAST_DELETED_CLASSROOM', {
       'CLASSROOM_ID': classroom.id,
       'CLASSROOM_TITLE': classroom.title,
       'TIMESTAMP': DateTime.now().millisecondsSinceEpoch,
       'DATE': DateTime.now().toIso8601String(),
     });
+  }
+
+  Future<void> _deleteHomeworkFiles(int classroomId) async {
+    final value = await _databaseService.get('${classroomId}_HOMEWORK');
+    final records = value is Map
+        ? value.values
+        : value is List
+        ? value
+        : const <Object?>[];
+    for (final record in records) {
+      if (record is! Map) {
+        continue;
+      }
+      final id = int.tryParse(record['ID']?.toString() ?? '');
+      if (id != null) {
+        await _storageService.deleteHomeworkFile(classroomId, id);
+      }
+    }
   }
 
   @override

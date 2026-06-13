@@ -10,6 +10,7 @@ import '../screens/classrooms/classrooms_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/exam_ai/exam_ai_screen.dart';
 import '../screens/feedback/feedback_screen.dart';
+import '../screens/homework/homework_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/notes/notes_screen.dart';
 import '../screens/students/students_screen.dart';
@@ -124,6 +125,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.classroomHomework,
+        name: 'classroom-homework',
+        builder: (context, state) {
+          final classroomId =
+              int.tryParse(state.pathParameters['classroomId'] ?? '') ?? 0;
+          final classroom = state.extra is Classroom
+              ? state.extra as Classroom
+              : null;
+          return HomeworkScreen(
+            classroomId: classroomId,
+            classroomTitle: classroom?.title ?? 'Classroom $classroomId',
+          );
+        },
+      ),
     ],
   );
 });
@@ -138,7 +154,7 @@ const _studentBlockedPaths = {
 
 int? _classroomChildRouteId(String path) {
   final match = RegExp(
-    r'^/classrooms/(\d+)/(notes|comments)$',
+    r'^/classrooms/(\d+)/(notes|homework|comments)$',
   ).firstMatch(path);
   if (match == null) {
     return null;

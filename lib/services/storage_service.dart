@@ -19,14 +19,33 @@ class StorageService {
     return '$storageFolder/$noteId';
   }
 
+  String homeworkFolder(int classroomId) => '${classroomId}_HOMEWORK';
+
+  String homeworkFile(int classroomId, int homeworkId) {
+    return '${homeworkFolder(classroomId)}/$homeworkId';
+  }
+
   Future<String> uploadNoteFile({
     required String storageFolder,
     required int noteId,
     required List<int> bytes,
     required String fileName,
     required String? contentType,
+  }) {
+    return _uploadFile(
+      objectPath: noteFile(storageFolder, noteId),
+      bytes: bytes,
+      fileName: fileName,
+      contentType: contentType,
+    );
+  }
+
+  Future<String> _uploadFile({
+    required String objectPath,
+    required List<int> bytes,
+    required String fileName,
+    required String? contentType,
   }) async {
-    final objectPath = noteFile(storageFolder, noteId);
     final token = _downloadToken();
     final headers = {
       'Content-Disposition': 'inline; filename="$fileName"',
@@ -51,9 +70,11 @@ class StorageService {
   }
 
   Future<void> deleteNoteFile(String storageFolder, int noteId) async {
-    final response = await _client.delete(
-      _objectUri(noteFile(storageFolder, noteId)),
-    );
+    return _deleteFile(noteFile(storageFolder, noteId));
+  }
+
+  Future<void> _deleteFile(String objectPath) async {
+    final response = await _client.delete(_objectUri(objectPath));
     if (response.statusCode == 404) {
       return;
     }
@@ -62,6 +83,25 @@ class StorageService {
         'Firebase Storage delete failed: ${response.statusCode} ${response.body}',
       );
     }
+  }
+
+  Future<String> uploadHomeworkFile({
+    required int classroomId,
+    required int homeworkId,
+    required List<int> bytes,
+    required String fileName,
+    required String? contentType,
+  }) {
+    return _uploadFile(
+      objectPath: homeworkFile(classroomId, homeworkId),
+      bytes: bytes,
+      fileName: fileName,
+      contentType: contentType,
+    );
+  }
+
+  Future<void> deleteHomeworkFile(int classroomId, int homeworkId) {
+    return _deleteFile(homeworkFile(classroomId, homeworkId));
   }
 
   String downloadUrl(String objectPath, String token) {

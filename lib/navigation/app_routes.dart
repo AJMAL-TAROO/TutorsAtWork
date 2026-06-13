@@ -11,6 +11,7 @@ class AppRoutes {
   static const whiteboard = '/whiteboard';
   static const examAi = '/exam-ai';
   static const classroomNotes = '/classrooms/:classroomId/notes';
+  static const classroomHomework = '/classrooms/:classroomId/homework';
   static const classroomComments = '/classrooms/:classroomId/comments';
 
   static String notesForClassroom(int classroomId) {
@@ -19,5 +20,9 @@ class AppRoutes {
 
   static String commentsForClassroom(int classroomId) {
     return '/classrooms/$classroomId/comments';
+  }
+
+  static String homeworkForClassroom(int classroomId) {
+    return '/classrooms/$classroomId/homework';
   }
 }

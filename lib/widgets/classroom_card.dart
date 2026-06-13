@@ -7,6 +7,7 @@ class ClassroomCard extends StatelessWidget {
     required this.classroom,
     this.onOpen,
     this.onViewNotes,
+    this.onViewHomework,
     this.onViewComments,
     this.onDelete,
     super.key,
@@ -15,6 +16,7 @@ class ClassroomCard extends StatelessWidget {
   final Classroom classroom;
   final VoidCallback? onOpen;
   final VoidCallback? onViewNotes;
+  final VoidCallback? onViewHomework;
   final VoidCallback? onViewComments;
   final VoidCallback? onDelete;
 
@@ -68,6 +70,11 @@ class ClassroomCard extends StatelessWidget {
                   onPressed: onViewNotes,
                   icon: const Icon(Icons.folder_copy_outlined),
                   label: const Text('Notes'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: onViewHomework,
+                  icon: const Icon(Icons.assignment_outlined),
+                  label: const Text('Homework'),
                 ),
                 OutlinedButton.icon(
                   onPressed: onViewComments,

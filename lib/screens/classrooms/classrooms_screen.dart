@@ -56,7 +56,7 @@ class ClassroomsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 360,
-              mainAxisExtent: 240,
+              mainAxisExtent: 280,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
@@ -69,6 +69,12 @@ class ClassroomsScreen extends ConsumerWidget {
                 onViewNotes: () {
                   context.go(
                     AppRoutes.notesForClassroom(classroom.id),
+                    extra: classroom,
+                  );
+                },
+                onViewHomework: () {
+                  context.go(
+                    AppRoutes.homeworkForClassroom(classroom.id),
                     extra: classroom,
                   );
                 },
@@ -189,7 +195,7 @@ class ClassroomsScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Delete classroom'),
         content: Text(
-          'Delete ${classroom.title}? This removes the classroom, its comments, notes metadata, and student assignments for this classroom.',
+          'Delete ${classroom.title}? This removes the classroom, its comments, notes, homework, and student assignments for this classroom.',
         ),
         actions: [
           TextButton(
