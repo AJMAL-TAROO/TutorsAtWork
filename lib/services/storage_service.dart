@@ -75,10 +75,7 @@ class StorageService {
     return Uri.https(
       'firebasestorage.googleapis.com',
       '/v0/b/${DefaultFirebaseOptions.storageBucket}/o',
-      {
-        'uploadType': 'media',
-        'name': objectPath,
-      },
+      {'uploadType': 'media', 'name': objectPath},
     );
   }
 

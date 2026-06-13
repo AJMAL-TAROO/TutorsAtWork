@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.taw_app"
+    namespace = "com.tutorsatwork.taw"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,8 +16,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.taw_app"
+        applicationId = "com.tutorsatwork.taw"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

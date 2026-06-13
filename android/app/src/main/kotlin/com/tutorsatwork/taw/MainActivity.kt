@@ -1,4 +1,4 @@
-package com.example.taw_app
+package com.tutorsatwork.taw
 
 import io.flutter.embedding.android.FlutterActivity
 
