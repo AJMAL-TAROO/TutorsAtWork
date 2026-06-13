@@ -16,6 +16,7 @@ import '../../providers/student_feedback_provider.dart';
 import '../../providers/students_provider.dart';
 import '../../providers/timetable_provider.dart';
 import '../../widgets/app_shell.dart';
+import '../../widgets/account_approval_gate.dart';
 import '../../widgets/required_update_gate.dart';
 
 final _dashboardClockProvider = StreamProvider<DateTime>((ref) async* {
@@ -104,114 +105,116 @@ class DashboardScreen extends ConsumerWidget {
         '-';
 
     return RequiredUpdateGate(
-      child: AppShell(
-        title: 'Dashboard',
-        onBack: () => _confirmExit(context),
-        actions: [
-          IconButton(
-            tooltip: 'Sign out',
-            onPressed: () async {
-              await ref.read(currentUserProvider.notifier).clear();
-              if (!context.mounted) {
-                return;
-              }
-              context.go(AppRoutes.login);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            Text(
-              'Welcome${user == null ? '' : ', ${user.fullName}'}',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              isAdmin
-                  ? 'Your classroom access, notes, timetable, attendance, and student feedback live here.'
-                  : 'Your classrooms, notes, comments, and tutor feedback live here.',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final tileWidth = constraints.maxWidth < 520
-                    ? constraints.maxWidth
-                    : 220.0;
-                return Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    _DashboardTile(
-                      width: tileWidth,
-                      icon: Icons.school_outlined,
-                      title: 'Classrooms',
-                      value: classrooms.maybeWhen(
-                        data: (items) => items.length.toString(),
-                        orElse: () => '-',
-                      ),
-                      onTap: () => context.go(AppRoutes.classrooms),
-                    ),
-                    _DashboardTile(
-                      width: tileWidth,
-                      icon: Icons.rate_review_outlined,
-                      title: 'Feedback',
-                      value: feedback.maybeWhen(
-                        data: (items) => items.length.toString(),
-                        loading: () => 'Loading...',
-                        orElse: () => '-',
-                      ),
-                      onTap: () => context.go(AppRoutes.feedback),
-                    ),
-                    if (isAdmin) ...[
-                      _DashboardTile(
-                        width: tileWidth,
-                        icon: Icons.people_outline,
-                        title: 'Students',
-                        value:
-                            students?.maybeWhen(
-                              data: (items) => items.length.toString(),
-                              orElse: () => '-',
-                            ) ??
-                            '-',
-                        onTap: () => context.go(AppRoutes.students),
-                      ),
-                      _DashboardTile(
-                        width: tileWidth,
-                        icon: Icons.calendar_month_outlined,
-                        title: 'Timetable',
-                        value: timetableSummary,
-                        onTap: () => context.go(AppRoutes.timetable),
-                      ),
-                      _DashboardTile(
-                        width: tileWidth,
-                        icon: Icons.fact_check_outlined,
-                        title: 'Attendance',
-                        value: attendanceValue,
-                        onTap: () => context.go(AppRoutes.attendance),
-                      ),
-                      _DashboardTile(
-                        width: tileWidth,
-                        icon: Icons.draw_outlined,
-                        title: 'Whiteboard',
-                        value: 'Open',
-                        onTap: () => context.go(AppRoutes.whiteboard),
-                      ),
-                      _DashboardTile(
-                        width: tileWidth,
-                        icon: Icons.description_outlined,
-                        title: 'Exam AI',
-                        value: 'Open',
-                        onTap: () => context.go(AppRoutes.examAi),
-                      ),
-                    ],
-                  ],
-                );
+      child: AccountApprovalGate(
+        child: AppShell(
+          title: 'Dashboard',
+          onBack: () => _confirmExit(context),
+          actions: [
+            IconButton(
+              tooltip: 'Sign out',
+              onPressed: () async {
+                await ref.read(currentUserProvider.notifier).clear();
+                if (!context.mounted) {
+                  return;
+                }
+                context.go(AppRoutes.login);
               },
+              icon: const Icon(Icons.logout),
             ),
           ],
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Text(
+                'Welcome${user == null ? '' : ', ${user.fullName}'}',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isAdmin
+                    ? 'Your classroom access, notes, timetable, attendance, and student feedback live here.'
+                    : 'Your classrooms, notes, comments, and tutor feedback live here.',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 24),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final tileWidth = constraints.maxWidth < 520
+                      ? constraints.maxWidth
+                      : 220.0;
+                  return Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      _DashboardTile(
+                        width: tileWidth,
+                        icon: Icons.school_outlined,
+                        title: 'Classrooms',
+                        value: classrooms.maybeWhen(
+                          data: (items) => items.length.toString(),
+                          orElse: () => '-',
+                        ),
+                        onTap: () => context.go(AppRoutes.classrooms),
+                      ),
+                      _DashboardTile(
+                        width: tileWidth,
+                        icon: Icons.rate_review_outlined,
+                        title: 'Feedback',
+                        value: feedback.maybeWhen(
+                          data: (items) => items.length.toString(),
+                          loading: () => 'Loading...',
+                          orElse: () => '-',
+                        ),
+                        onTap: () => context.go(AppRoutes.feedback),
+                      ),
+                      if (isAdmin) ...[
+                        _DashboardTile(
+                          width: tileWidth,
+                          icon: Icons.people_outline,
+                          title: 'Students',
+                          value:
+                              students?.maybeWhen(
+                                data: (items) => items.length.toString(),
+                                orElse: () => '-',
+                              ) ??
+                              '-',
+                          onTap: () => context.go(AppRoutes.students),
+                        ),
+                        _DashboardTile(
+                          width: tileWidth,
+                          icon: Icons.calendar_month_outlined,
+                          title: 'Timetable',
+                          value: timetableSummary,
+                          onTap: () => context.go(AppRoutes.timetable),
+                        ),
+                        _DashboardTile(
+                          width: tileWidth,
+                          icon: Icons.fact_check_outlined,
+                          title: 'Attendance',
+                          value: attendanceValue,
+                          onTap: () => context.go(AppRoutes.attendance),
+                        ),
+                        _DashboardTile(
+                          width: tileWidth,
+                          icon: Icons.draw_outlined,
+                          title: 'Whiteboard',
+                          value: 'Open',
+                          onTap: () => context.go(AppRoutes.whiteboard),
+                        ),
+                        _DashboardTile(
+                          width: tileWidth,
+                          icon: Icons.description_outlined,
+                          title: 'Exam AI',
+                          value: 'Open',
+                          onTap: () => context.go(AppRoutes.examAi),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

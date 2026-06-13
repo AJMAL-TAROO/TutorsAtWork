@@ -42,6 +42,7 @@ class SessionService {
             .map((roomId) => int.tryParse(roomId.toString()))
             .whereType<int>()
             .toList(),
+        approvalStatus: data['approvalStatus']?.toString(),
       );
     } catch (_) {
       await clearUser();
@@ -59,6 +60,7 @@ class SessionService {
         'fullName': user.fullName,
         'role': user.role.name,
         'virtualRoomIds': user.virtualRoomIds,
+        'approvalStatus': user.approvalStatus,
       }),
     );
   }

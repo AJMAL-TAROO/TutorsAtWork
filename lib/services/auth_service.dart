@@ -7,6 +7,8 @@ abstract class AuthService {
     required String password,
     required UserRole role,
   });
+
+  Future<String?> adminApprovalStatus(String adminKey);
 }
 
 class RealtimeDatabaseAuthService implements AuthService {
@@ -14,6 +16,14 @@ class RealtimeDatabaseAuthService implements AuthService {
     : _databaseService = databaseService ?? FirebaseDatabaseService();
 
   final FirebaseDatabaseService _databaseService;
+
+  @override
+  Future<String?> adminApprovalStatus(String adminKey) async {
+    final value = await _databaseService.get(
+      '${_databaseService.admins}/$adminKey/APRROVAL',
+    );
+    return value?.toString().trim().toLowerCase();
+  }
 
   @override
   Future<AppUser?> signIn({

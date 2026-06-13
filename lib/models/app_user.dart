@@ -7,6 +7,7 @@ class AppUser {
     required this.fullName,
     required this.role,
     this.virtualRoomIds = const [],
+    this.approvalStatus,
   });
 
   factory AppUser.fromRealtimeDatabase({
@@ -26,6 +27,7 @@ class AppUser {
       fullName: data['FULL_NAME'] as String? ?? '',
       role: role,
       virtualRoomIds: virtualRooms,
+      approvalStatus: data['APRROVAL']?.toString().trim().toLowerCase(),
     );
   }
 
@@ -34,6 +36,11 @@ class AppUser {
   final String fullName;
   final UserRole role;
   final List<int> virtualRoomIds;
+  final String? approvalStatus;
+
+  bool get isAccessRestricted =>
+      role == UserRole.admin &&
+      (approvalStatus == 'payment' || approvalStatus == 'pending');
 
   AppUser copyWith({
     String? key,
@@ -41,6 +48,7 @@ class AppUser {
     String? fullName,
     UserRole? role,
     List<int>? virtualRoomIds,
+    String? approvalStatus,
   }) {
     return AppUser(
       key: key ?? this.key,
@@ -48,6 +56,18 @@ class AppUser {
       fullName: fullName ?? this.fullName,
       role: role ?? this.role,
       virtualRoomIds: virtualRoomIds ?? this.virtualRoomIds,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
+    );
+  }
+
+  AppUser withApprovalStatus(String? value) {
+    return AppUser(
+      key: key,
+      email: email,
+      fullName: fullName,
+      role: role,
+      virtualRoomIds: virtualRoomIds,
+      approvalStatus: value,
     );
   }
 }

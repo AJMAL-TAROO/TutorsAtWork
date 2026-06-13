@@ -7,6 +7,7 @@ import '../../navigation/app_routes.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/required_update_gate.dart';
+import '../../widgets/account_approval_dialog.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -52,6 +53,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Unable to sign in with those details.')),
       );
+      return;
+    }
+
+    if (user.isAccessRestricted) {
+      await showAccountApprovalDialog(context, user);
       return;
     }
 
