@@ -19,9 +19,14 @@ class RealtimeDatabaseAuthService implements AuthService {
 
   @override
   Future<String?> adminApprovalStatus(String adminKey) async {
-    final value = await _databaseService.get(
-      '${_databaseService.admins}/$adminKey/APRROVAL',
+    final approval = await _databaseService.get(
+      '${_databaseService.admins}/$adminKey/APPROVAL',
     );
+    final value =
+        approval ??
+        await _databaseService.get(
+          '${_databaseService.admins}/$adminKey/APRROVAL',
+        );
     return value?.toString().trim().toLowerCase();
   }
 

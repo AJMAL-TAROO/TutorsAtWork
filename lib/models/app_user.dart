@@ -27,7 +27,10 @@ class AppUser {
       fullName: data['FULL_NAME'] as String? ?? '',
       role: role,
       virtualRoomIds: virtualRooms,
-      approvalStatus: data['APRROVAL']?.toString().trim().toLowerCase(),
+      approvalStatus: (data['APPROVAL'] ?? data['APRROVAL'])
+          ?.toString()
+          .trim()
+          .toLowerCase(),
     );
   }
 

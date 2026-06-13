@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,19 +21,42 @@ class AccountApprovalGate extends ConsumerStatefulWidget {
 
 class _AccountApprovalGateState extends ConsumerState<AccountApprovalGate> {
   bool _checking = true;
+  bool _isCheckingApproval = false;
+  bool _isHandlingRestriction = false;
+  Timer? _approvalTimer;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkApproval());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkApproval();
+      if (mounted) {
+        _approvalTimer = Timer.periodic(
+          const Duration(seconds: 3),
+          (_) => _checkApproval(),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _approvalTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkApproval() async {
+    if (_isCheckingApproval || _isHandlingRestriction) {
+      return;
+    }
+    _isCheckingApproval = true;
+
     final user = ref.read(currentUserProvider);
     if (user == null || user.role != UserRole.admin) {
       if (mounted) {
         setState(() => _checking = false);
       }
+      _isCheckingApproval = false;
       return;
     }
 
@@ -45,15 +70,21 @@ class _AccountApprovalGateState extends ConsumerState<AccountApprovalGate> {
     }
 
     if (!mounted) {
+      _isCheckingApproval = false;
       return;
     }
 
     final refreshedUser = user.withApprovalStatus(status);
     if (!refreshedUser.isAccessRestricted) {
-      setState(() => _checking = false);
+      if (_checking) {
+        setState(() => _checking = false);
+      }
+      _isCheckingApproval = false;
       return;
     }
 
+    _isHandlingRestriction = true;
+    _isCheckingApproval = false;
     await showAccountApprovalDialog(context, refreshedUser);
     await ref.read(currentUserProvider.notifier).clear();
     if (mounted) {
