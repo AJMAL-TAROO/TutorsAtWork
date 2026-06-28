@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../config/app_config.dart';
 import '../../models/app_user.dart';
 import '../../navigation/app_routes.dart';
 import '../../providers/auth_provider.dart';
@@ -66,6 +69,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
     context.go(AppRoutes.dashboard);
+  }
+
+  Future<void> _openExternal(String url) async {
+    final uri = Uri.parse(url);
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to open that link.')),
+      );
+    }
   }
 
   @override
@@ -145,6 +158,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 : const Icon(Icons.login),
                             label: const Text('Sign in'),
                           ),
+                          if (kIsWeb) ...[
+                            const SizedBox(height: 16),
+                            const Divider(),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No installation required on web. Prefer the installed app?',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  _openExternal(AppConfig.downloadPageUrl),
+                              icon: const Icon(Icons.download_outlined),
+                              label: const Text('Download Windows or Android'),
+                            ),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  _openExternal(AppConfig.supportPageUrl),
+                              icon: const Icon(Icons.support_agent_outlined),
+                              label: const Text('Contact support'),
+                            ),
+                          ],
                         ],
                       ),
                     ),
