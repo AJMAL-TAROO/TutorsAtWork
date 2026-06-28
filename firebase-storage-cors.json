@@ -1,0 +1,26 @@
+[
+  {
+    "origin": [
+      "https://www.tutorsatwork.com",
+      "https://ajmal-taroo.github.io",
+      "http://localhost:5000",
+      "http://localhost:8080",
+      "http://localhost:8787",
+      "http://127.0.0.1:5000",
+      "http://127.0.0.1:8080",
+      "http://127.0.0.1:8787"
+    ],
+    "method": ["GET", "HEAD", "POST", "PUT", "DELETE"],
+    "responseHeader": [
+      "Content-Type",
+      "content-type",
+      "Content-Disposition",
+      "content-disposition",
+      "x-goog-meta-firebaseStorageDownloadTokens",
+      "x-goog-meta-firebasestoragedownloadtokens",
+      "x-goog-resumable",
+      "Authorization"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

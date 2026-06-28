@@ -54,11 +54,20 @@ class StorageService {
     if (contentType != null) {
       headers['Content-Type'] = contentType;
     }
-    final response = await _client.post(
-      _storageUri(objectPath),
-      headers: headers,
-      body: Uint8List.fromList(bytes),
-    );
+    final http.Response response;
+    try {
+      response = await _client.post(
+        _storageUri(objectPath),
+        headers: headers,
+        body: Uint8List.fromList(bytes),
+      );
+    } on http.ClientException catch (error) {
+      throw StateError(
+        'Firebase Storage upload could not reach the bucket. '
+        'If this happens on web, configure CORS for the Storage bucket. '
+        'Original error: $error',
+      );
+    }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw StateError(
@@ -74,7 +83,16 @@ class StorageService {
   }
 
   Future<void> _deleteFile(String objectPath) async {
-    final response = await _client.delete(_objectUri(objectPath));
+    final http.Response response;
+    try {
+      response = await _client.delete(_objectUri(objectPath));
+    } on http.ClientException catch (error) {
+      throw StateError(
+        'Firebase Storage delete could not reach the bucket. '
+        'If this happens on web, configure CORS for the Storage bucket. '
+        'Original error: $error',
+      );
+    }
     if (response.statusCode == 404) {
       return;
     }
