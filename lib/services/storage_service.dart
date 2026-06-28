@@ -1,15 +1,19 @@
-import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../config/firebase_options.dart';
 
 class StorageService {
-  StorageService({http.Client? client}) : _client = client ?? http.Client();
+  StorageService({FirebaseStorage? storage}) : _storage = storage;
 
-  final http.Client _client;
+  final FirebaseStorage? _storage;
+
+  FirebaseStorage get _storageInstance =>
+      _storage ??
+      FirebaseStorage.instanceFor(
+        bucket: 'gs://${DefaultFirebaseOptions.storageBucket}',
+      );
 
   String classroomNotesFolder(String classroomId) {
     return '${classroomId}_NOTES';
@@ -46,59 +50,38 @@ class StorageService {
     required String fileName,
     required String? contentType,
   }) async {
-    final token = _downloadToken();
-    final headers = {
-      'Content-Disposition': 'inline; filename="$fileName"',
-      'x-goog-meta-firebaseStorageDownloadTokens': token,
-    };
-    if (contentType != null) {
-      headers['Content-Type'] = contentType;
-    }
-    final http.Response response;
+    final reference = _storageInstance.ref(objectPath);
+    final safeFileName = fileName.replaceAll('"', '');
+    final metadata = SettableMetadata(
+      contentType: contentType,
+      contentDisposition: 'inline; filename="$safeFileName"',
+    );
+
     try {
-      response = await _client.post(
-        _storageUri(objectPath),
-        headers: headers,
-        body: Uint8List.fromList(bytes),
-      );
-    } on http.ClientException catch (error) {
+      await reference.putData(Uint8List.fromList(bytes), metadata);
+      return reference.getDownloadURL();
+    } on FirebaseException catch (error) {
       throw StateError(
-        'Firebase Storage upload could not reach the bucket. '
-        'If this happens on web, configure CORS for the Storage bucket. '
-        'Original error: $error',
+        'Firebase Storage upload failed (${error.code}): '
+        '${error.message ?? 'Unknown Firebase error.'}',
       );
     }
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StateError(
-        'Firebase Storage upload failed: ${response.statusCode} ${response.body}',
-      );
-    }
-
-    return downloadUrl(objectPath, token);
   }
 
-  Future<void> deleteNoteFile(String storageFolder, int noteId) async {
+  Future<void> deleteNoteFile(String storageFolder, int noteId) {
     return _deleteFile(noteFile(storageFolder, noteId));
   }
 
   Future<void> _deleteFile(String objectPath) async {
-    final http.Response response;
     try {
-      response = await _client.delete(_objectUri(objectPath));
-    } on http.ClientException catch (error) {
+      await _storageInstance.ref(objectPath).delete();
+    } on FirebaseException catch (error) {
+      if (error.code == 'object-not-found') {
+        return;
+      }
       throw StateError(
-        'Firebase Storage delete could not reach the bucket. '
-        'If this happens on web, configure CORS for the Storage bucket. '
-        'Original error: $error',
-      );
-    }
-    if (response.statusCode == 404) {
-      return;
-    }
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StateError(
-        'Firebase Storage delete failed: ${response.statusCode} ${response.body}',
+        'Firebase Storage delete failed (${error.code}): '
+        '${error.message ?? 'Unknown Firebase error.'}',
       );
     }
   }
@@ -120,33 +103,5 @@ class StorageService {
 
   Future<void> deleteHomeworkFile(int classroomId, int homeworkId) {
     return _deleteFile(homeworkFile(classroomId, homeworkId));
-  }
-
-  String downloadUrl(String objectPath, String token) {
-    final encodedPath = Uri.encodeComponent(objectPath);
-    return 'https://firebasestorage.googleapis.com/v0/b/'
-        '${DefaultFirebaseOptions.storageBucket}/o/$encodedPath'
-        '?alt=media&token=$token';
-  }
-
-  Uri _storageUri(String objectPath) {
-    return Uri.https(
-      'firebasestorage.googleapis.com',
-      '/v0/b/${DefaultFirebaseOptions.storageBucket}/o',
-      {'uploadType': 'media', 'name': objectPath},
-    );
-  }
-
-  Uri _objectUri(String objectPath) {
-    return Uri.https(
-      'firebasestorage.googleapis.com',
-      '/v0/b/${DefaultFirebaseOptions.storageBucket}/o/${Uri.encodeComponent(objectPath)}',
-    );
-  }
-
-  String _downloadToken() {
-    final random = Random.secure();
-    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
-    return base64Url.encode(bytes).replaceAll('=', '');
   }
 }

@@ -11,7 +11,7 @@ if (-not (Test-Path -LiteralPath $corsFile)) {
 $gcloud = Get-Command gcloud -ErrorAction SilentlyContinue
 if ($gcloud) {
   & $gcloud.Source storage buckets update $bucket --cors-file=$corsFile
-  & $gcloud.Source storage buckets describe $bucket --format='default(cors)'
+  & $gcloud.Source storage buckets describe $bucket --format='default(cors_config)'
   return
 }
 
@@ -28,5 +28,5 @@ Neither gcloud nor gsutil is available on PATH.
 Install Google Cloud CLI or open Google Cloud Shell, then run:
 
 gcloud storage buckets update $bucket --cors-file=$corsFile
-gcloud storage buckets describe $bucket --format="default(cors)"
+gcloud storage buckets describe $bucket --format="default(cors_config)"
 "@

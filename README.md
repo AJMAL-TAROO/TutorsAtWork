@@ -68,5 +68,5 @@ cat > firebase-storage-cors.json <<'JSON'
 JSON
 
 gcloud storage buckets update gs://houseoftutors-f398e.firebasestorage.app --cors-file=firebase-storage-cors.json
-gcloud storage buckets describe gs://houseoftutors-f398e.firebasestorage.app --format="default(cors)"
+gcloud storage buckets describe gs://houseoftutors-f398e.firebasestorage.app --format="default(cors_config)"
 ```
