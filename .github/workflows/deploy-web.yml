@@ -27,7 +27,7 @@ jobs:
 
       - name: Build web
         run: |
-          flutter build web --release --base-href /
+          flutter build web --release --base-href / --pwa-strategy=none
           cp build/web/index.html build/web/404.html
 
       - name: Deploy to GitHub Pages
