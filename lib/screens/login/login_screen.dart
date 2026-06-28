@@ -162,17 +162,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 16),
                             const Divider(),
                             const SizedBox(height: 8),
-                            Text(
-                              'No installation required on web. Prefer the installed app?',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 8),
                             TextButton.icon(
                               onPressed: () =>
                                   _openExternal(AppConfig.downloadPageUrl),
                               icon: const Icon(Icons.download_outlined),
-                              label: const Text('Download Windows or Android'),
+                              label: const Text('Get Windows or Android app'),
                             ),
                             TextButton.icon(
                               onPressed: () =>
