@@ -174,6 +174,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               icon: const Icon(Icons.support_agent_outlined),
                               label: const Text('Contact support'),
                             ),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  _openExternal(AppConfig.privacyPolicyUrl),
+                              icon: const Icon(Icons.privacy_tip_outlined),
+                              label: const Text('Privacy Policy'),
+                            ),
                           ],
                         ],
                       ),

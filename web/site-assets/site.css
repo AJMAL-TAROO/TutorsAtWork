@@ -169,6 +169,14 @@ footer { padding: 35px 0; border-top: 1px solid var(--line); }
 .contact-card h2 { margin-top: 24px; font-size: 1.45rem; letter-spacing: -.035em; }
 .contact-card p { margin-top: 8px; color: var(--blue); font-size: 1.05rem; font-weight: 700; overflow-wrap: anywhere; }
 
+.policy-hero { padding-bottom: 90px; }
+.policy-date { margin-top: 12px; color: var(--muted); font-size: .9rem; }
+.policy-card { display: grid; gap: 30px; max-width: 900px; margin-top: 44px; padding: 40px; border: 1px solid var(--line); border-radius: var(--radius); background: white; box-shadow: var(--shadow); }
+.policy-card section + section { padding-top: 30px; border-top: 1px solid var(--line); }
+.policy-card h2 { margin-bottom: 8px; font-size: 1.25rem; letter-spacing: -.025em; }
+.policy-card p { color: var(--muted); }
+.policy-card a { color: var(--blue); font-weight: 700; }
+
 @media (max-width: 960px) {
   .hero-grid, .faq-grid { grid-template-columns: 1fr; }
   .hero-copy { max-width: 730px; }

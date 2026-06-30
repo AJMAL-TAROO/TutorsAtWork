@@ -35,7 +35,14 @@ if (-not (Test-Path -LiteralPath $innoCompiler)) {
 Push-Location $projectRoot
 try {
   flutter build windows --release
+  if ($LASTEXITCODE -ne 0) {
+    throw "Flutter Windows release build failed with exit code $LASTEXITCODE."
+  }
+
   & $innoCompiler (Join-Path $PSScriptRoot 'TutorsAtWork.iss')
+  if ($LASTEXITCODE -ne 0) {
+    throw "Inno Setup compilation failed with exit code $LASTEXITCODE."
+  }
 } finally {
   Pop-Location
 }
